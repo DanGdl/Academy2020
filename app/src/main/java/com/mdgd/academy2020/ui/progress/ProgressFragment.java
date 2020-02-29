@@ -8,16 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.mdgd.academy2020.R;
-import com.mdgd.academy2020.arch.fragments.MvpDialogFragment;
+import com.mdgd.academy2020.arch.fragments.MessageDialog;
 
-public class ProgressFragment extends MvpDialogFragment<ProgressContract.Controller, ProgressContract.Host> implements ProgressContract.View {
-    private static final String KEY_TITLE = "key_title";
-    private static final String KEY_MSG = "key_msg";
-    private static final String KEY_TITLE_STR = "key_title_str";
-    private static final String KEY_MSG_STR = "key_msg_str";
-    private static final String KEY_TYPE = "key_type";
-    private static final int TYPE_INT = 1;
-    private static final int TYPE_STR = 2;
+public class ProgressFragment extends MessageDialog<ProgressContract.Controller, ProgressContract.Host> implements ProgressContract.View {
 
     public static ProgressFragment newInstance(int titleResId, int msgResId) {
         final Bundle b = new Bundle();

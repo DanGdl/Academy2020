@@ -3,12 +3,14 @@ package com.mdgd.academy2020.arch.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.Contract;
 
 import org.jetbrains.annotations.NotNull;
@@ -124,5 +126,32 @@ public abstract class MvpDialogFragment<Presenter extends Contract.Controller, H
     public boolean isShowing() {
         final Dialog dialog = getDialog();
         return dialog != null && dialog.isShowing();
+    }
+
+
+    @Override
+    public void showToast(int strResId) {
+        Toast.makeText(getActivity(), strResId, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showProgress() {
+        if (hasCallBack()) {
+            getCallBack().showProgress(R.string.empty, R.string.empty);
+        }
+    }
+
+    @Override
+    public void showProgress(String title, String message) {
+        if (hasCallBack()) {
+            getCallBack().showProgress(title, message);
+        }
+    }
+
+    @Override
+    public void hideProgress() {
+        if (hasCallBack()) {
+            getCallBack().hideProgress();
+        }
     }
 }

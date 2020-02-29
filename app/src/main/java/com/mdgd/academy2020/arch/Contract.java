@@ -22,8 +22,22 @@ public class Contract {
     }
 
     public interface View {
+        String getString(int strResId, Object... args);
+
+        void showToast(int strResId);
+
+        void showProgress();
+
+        void showProgress(String title, String message);
+
+        void hideProgress();
     }
 
     public interface Host {
+        void showProgress(int titleResId, int messageResId);
+
+        void showProgress(String title, String message);
+
+        void hideProgress();
     }
 }

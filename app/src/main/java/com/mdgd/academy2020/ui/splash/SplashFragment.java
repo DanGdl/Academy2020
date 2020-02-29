@@ -37,4 +37,27 @@ public class SplashFragment extends MvpFragment<SplashContract.Controller, Splas
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (getView() != null) {
+            // todo debug time 500
+            getView().postDelayed(() -> getController().checkUserStatus(), 1000);
+        }
+    }
+
+    @Override
+    public void proceedToLobby() {
+        if (hasCallBack()) {
+            getCallBack().proceedToLobby();
+        }
+    }
+
+    @Override
+    public void proceedToAuth() {
+        if (hasCallBack()) {
+            getCallBack().proceedToAuth();
+        }
+    }
 }
