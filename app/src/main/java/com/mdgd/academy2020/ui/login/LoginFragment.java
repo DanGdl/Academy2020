@@ -49,6 +49,7 @@ public class LoginFragment extends MvpFragment<LoginContract.Controller, LoginCo
         emailEditText = view.findViewById(R.id.email);
         passwordEditText = view.findViewById(R.id.password);
 
+        // todo move to presenter
         onStopDisposables.add(Observable.combineLatest(
                 RxTextView.afterTextChangeEvents(emailEditText)
                         .filter(event -> event.component2() != null)

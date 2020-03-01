@@ -56,6 +56,16 @@ dependencies {
     implementation "com.jakewharton.rxbinding3:rxbinding-material:$rxbinding3"
     implementation 'com.jakewharton.rx2:replaying-share:2.1.1'
 
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    /**
+     * Cropping images
+     */
+    implementation('com.theartofdev.edmodo:android-image-cropper:2.8.0') {
+        transitive = false
+    }
+    implementation 'com.github.yalantis:ucrop:2.2.4'
+
     testImplementation 'junit:junit:4.12'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
