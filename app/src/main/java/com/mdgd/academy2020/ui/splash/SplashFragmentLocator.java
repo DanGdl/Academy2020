@@ -7,6 +7,6 @@ class SplashFragmentLocator {
 
     SplashContract.Controller createController() {
         final ModelProvider provider = App.getInstance().getModelProvider();
-        return new SplashController(provider.getNetwork());
+        return new SplashController(provider.getPrefs());
     }
 }

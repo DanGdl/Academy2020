@@ -102,4 +102,18 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
             getController().execSignIn();
         }
     }
+
+    @Override
+    public void showError(String title, String message) {
+        if (hasCallBack()) {
+            getCallBack().showError(title, message);
+        }
+    }
+
+    @Override
+    public void proceedToLobby() {
+        if (hasCallBack()) {
+            getCallBack().proceedToLobby();
+        }
+    }
 }

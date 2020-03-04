@@ -3,12 +3,15 @@ package com.mdgd.academy2020.ui.login;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.MvpController;
 import com.mdgd.academy2020.models.network.Network;
+import com.mdgd.academy2020.models.prefs.Prefs;
 
 class LoginController extends MvpController<LoginContract.View> implements LoginContract.Controller {
     private final Network network;
+    private final Prefs prefs;
 
-    LoginController(Network network) {
+    LoginController(Network network, Prefs prefs) {
         this.network = network;
+        this.prefs = prefs;
     }
 
     @Override
@@ -46,6 +49,7 @@ class LoginController extends MvpController<LoginContract.View> implements Login
                     } else {
                         if (hasView()) {
                             // todo make additional stuff?
+                            prefs.putAuthToken(result.data);
                             view.showToast(R.string.login_successful);
                             view.proceedToLobby();
                         }

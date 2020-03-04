@@ -7,6 +7,6 @@ class SignInFragmentLocator {
 
     SignInContract.Controller createController() {
         final ModelProvider provider = App.getInstance().getModelProvider();
-        return new SignInController(provider.getNetwork());
+        return new SignInController(provider.getNetwork(), provider.getPrefs());
     }
 }

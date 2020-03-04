@@ -16,9 +16,16 @@ public class SignInContract {
     }
 
     public interface View extends Contract.View {
+        void showError(String title, String message);
+
+        void proceedToLobby();
     }
 
     public interface Host extends Contract.Host {
         Single<Result<String>> showTakePictureScreen();
+
+        void showError(String title, String message);
+
+        void proceedToLobby();
     }
 }

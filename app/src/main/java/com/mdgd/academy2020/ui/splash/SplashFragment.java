@@ -41,10 +41,7 @@ public class SplashFragment extends MvpFragment<SplashContract.Controller, Splas
     @Override
     public void onStart() {
         super.onStart();
-        if (getView() != null) {
-            // todo debug time 500
-            getView().postDelayed(() -> getController().checkUserStatus(), 1000);
-        }
+        getController().checkUserStatus();
     }
 
     @Override

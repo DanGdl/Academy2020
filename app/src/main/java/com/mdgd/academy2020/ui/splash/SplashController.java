@@ -1,25 +1,34 @@
 package com.mdgd.academy2020.ui.splash;
 
 import com.mdgd.academy2020.arch.MvpController;
-import com.mdgd.academy2020.models.network.Network;
+import com.mdgd.academy2020.models.prefs.Prefs;
+import com.mdgd.academy2020.util.TextUtil;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 class SplashController extends MvpController<SplashContract.View> implements SplashContract.Controller {
-    private final Network network;
+    private final Prefs prefs;
 
-    public SplashController(Network network) {
-        this.network = network;
+    public SplashController(Prefs prefs) {
+        this.prefs = prefs;
     }
 
     @Override
     public void checkUserStatus() {
-        if (network.hasUser()) {
-            if (hasView()) {
-                view.proceedToLobby();
-            }
-        } else {
-            if (hasView()) {
-                view.proceedToAuth();
-            }
-        }
+        onStopDisposable.add(Single.just(prefs.getAuthToken())
+                .delay(5, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(token -> !TextUtil.isEmpty(token))
+                .filter(hasToken -> hasView())
+                .subscribe(hasToken -> {
+                    if (hasToken) {
+                        view.proceedToLobby();
+                    } else {
+                        view.proceedToAuth();
+                    }
+                }));
     }
 }
