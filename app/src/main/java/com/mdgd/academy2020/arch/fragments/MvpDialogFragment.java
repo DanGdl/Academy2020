@@ -29,6 +29,7 @@ public abstract class MvpDialogFragment<Presenter extends Contract.Controller, H
      * will be shown once more. This variable prohibits such cases
      */
     private boolean isDismissed = false;
+    private boolean isStarted = false;
 
     public final boolean hasCallBack() {
         return callBack != null;
@@ -68,6 +69,7 @@ public abstract class MvpDialogFragment<Presenter extends Contract.Controller, H
     public void onStart() {
         super.onStart();
         subscribePresenter();
+        isStarted = true;
     }
 
     protected void subscribePresenter() {
@@ -87,6 +89,7 @@ public abstract class MvpDialogFragment<Presenter extends Contract.Controller, H
 
     @Override
     public void onStop() {
+        isStarted = false;
         final Presenter presenter = getController();
         if (presenter != null) {
             presenter.unsubscribe();
@@ -153,5 +156,10 @@ public abstract class MvpDialogFragment<Presenter extends Contract.Controller, H
         if (hasCallBack()) {
             getCallBack().hideProgress();
         }
+    }
+
+    @Override
+    public boolean isStarted() {
+        return isStarted;
     }
 }

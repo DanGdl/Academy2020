@@ -3,6 +3,7 @@ package com.mdgd.academy2020.models;
 import com.mdgd.academy2020.models.cache.Cache;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.prefs.Prefs;
+import com.mdgd.academy2020.models.validators.Validator;
 
 public interface ModelProvider {
 
@@ -11,4 +12,8 @@ public interface ModelProvider {
     Network getNetwork();
 
     Prefs getPrefs();
+
+    Validator<String> getEmailValidator();
+
+    Validator<String> getPasswordValidator();
 }

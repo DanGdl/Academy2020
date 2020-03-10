@@ -13,10 +13,11 @@ import androidx.annotation.Nullable;
 import com.jakewharton.rxbinding3.widget.RxTextView;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.fragments.MvpFragment;
+import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.util.ImageUtil;
-import com.mdgd.academy2020.util.TextUtil;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 public class SignInFragment extends MvpFragment<SignInContract.Controller, SignInContract.Host>
         implements SignInContract.View, View.OnClickListener {
@@ -26,6 +27,7 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     private EditText nickNameView;
     private EditText passwordView;
     private EditText passwordVerificationView;
+    private EditText email;
     private View signInBtn;
 
     public static SignInFragment newInstance() {
@@ -57,47 +59,20 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
         passwordVerificationView = view.findViewById(R.id.password_verification);
         signInBtn = view.findViewById(R.id.sign_in_btn);
         signInBtn.setOnClickListener(this);
+        email = view.findViewById(R.id.email);
+    }
 
-        // todo move to presenter
-        onStopDisposables.add(Observable.combineLatest(
-                RxTextView.afterTextChangeEvents(nickNameView)
-                        .filter(event -> event.component2() != null)
-                        .map(event -> {
-                            final boolean empty = TextUtil.isEmpty(event.component2().toString());
-                            nickNameView.setError(empty ? getString(R.string.please_fill_nuckname) : null);
-                            return empty;
-                        }),
-                RxTextView.afterTextChangeEvents(passwordView)
-                        .filter(event -> event.component2() != null)
-                        .map(event -> getController().validatePassword(event.component2().toString()))
-                        .map(errorMsg -> {
-                            passwordView.setError(errorMsg);
-                            return TextUtil.isEmpty(errorMsg);
-                        }),
-                RxTextView.afterTextChangeEvents(passwordVerificationView)
-                        .filter(event -> event.component2() != null)
-                        .map(event -> getController().checkPasswordVerification(passwordView.getText().toString(), event.component2().toString()))
-                        .map(errorMsg -> {
-                            passwordVerificationView.setError(errorMsg);
-                            return TextUtil.isEmpty(errorMsg);
-                        }), (isNicknameValid, isEmailValid, isPasswordValid) -> isNicknameValid && isEmailValid && isPasswordValid)
-                .subscribe(signInBtn::setEnabled));
+    @Override
+    public void onStart() {
+        super.onStart();
+        getController().setupSubscriptions();
     }
 
     @Override
     public void onClick(View v) {
         final int id = v.getId();
         if (R.id.avatar == id) {
-            if (hasCallBack()) {
-                // todo move to presenter
-                onStopDisposables.add(getCallBack().showTakePictureScreen().subscribe(result -> {
-                    if (result.isFail()) {
-
-                    } else {
-                        ImageUtil.loadImage(avatarView, result.data);
-                    }
-                }));
-            }
+            getController().takePicture();
         } else if (R.id.sign_in_btn == id) {
             getController().execSignIn();
         }
@@ -115,5 +90,69 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
         if (hasCallBack()) {
             getCallBack().proceedToLobby();
         }
+    }
+
+    @Override
+    public Observable<String> getNickNameObservable() {
+        return createAfterChangeObservable(nickNameView);
+    }
+
+    private Observable<String> createAfterChangeObservable(EditText editText) {
+        return RxTextView.afterTextChangeEvents(editText)
+                .filter(event -> event.component2() != null)
+                .map(event -> event.component2().toString());
+    }
+
+    @Override
+    public void setNickNameError(String errorMessage) {
+        nickNameView.setError(errorMessage);
+    }
+
+    @Override
+    public Observable<String> getPasswordObservable() {
+        return createAfterChangeObservable(passwordView);
+    }
+
+    @Override
+    public void setPasswordError(String errorMsg) {
+        passwordView.setError(errorMsg);
+    }
+
+    @Override
+    public Observable<String> getPasswordVerificationObservable() {
+        return createAfterChangeObservable(passwordVerificationView);
+    }
+
+    @Override
+    public void setSignInEnabled(Boolean isEnabled) {
+        signInBtn.setEnabled(isEnabled);
+    }
+
+    @Override
+    public void setPasswordVerificationError(String errorMsg) {
+        passwordVerificationView.setError(errorMsg);
+    }
+
+    @Override
+    public Single<Result<String>> showTakePictureScreen() {
+        if (hasCallBack()) {
+            return getCallBack().showTakePictureScreen();
+        }
+        return Single.never();
+    }
+
+    @Override
+    public void loadAvatar(String data) {
+        ImageUtil.loadImage(avatarView, data);
+    }
+
+    @Override
+    public Observable<String> getEmailObservable() {
+        return createAfterChangeObservable(email);
+    }
+
+    @Override
+    public void setEmailError(String errorMessage) {
+        email.setError(errorMessage);
     }
 }

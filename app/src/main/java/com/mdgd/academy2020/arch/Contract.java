@@ -31,6 +31,8 @@ public class Contract {
         void showProgress(String title, String message);
 
         void hideProgress();
+
+        boolean isStarted();
     }
 
     public interface Host {

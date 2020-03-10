@@ -16,8 +16,9 @@ import io.reactivex.disposables.CompositeDisposable;
 public abstract class MvpFragment<ControllerType extends Contract.Controller, Host extends Contract.Host>
         extends Fragment implements Contract.View {
 
-    protected final CompositeDisposable onStopDisposables = new CompositeDisposable();
-    protected final CompositeDisposable onDestroyDisposables = new CompositeDisposable();
+    protected final CompositeDisposable onStopDisposable = new CompositeDisposable();
+    protected final CompositeDisposable onDestroyDisposable = new CompositeDisposable();
+    private boolean isStarted = false;
     /**
      * the fragment callBack
      */
@@ -70,15 +71,17 @@ public abstract class MvpFragment<ControllerType extends Contract.Controller, Ho
         if (controllerType != null) {
             controllerType.subscribe(this);
         }
+        isStarted = true;
     }
 
     @Override
     public void onStop() {
+        isStarted = false;
         final ControllerType controllerType = getController();
         if (controllerType != null) {
             controllerType.unsubscribe();
         }
-        onStopDisposables.clear();
+        onStopDisposable.clear();
         super.onStop();
     }
 
@@ -88,7 +91,7 @@ public abstract class MvpFragment<ControllerType extends Contract.Controller, Ho
         if (controllerType != null) {
             controllerType.destroy();
         }
-        onDestroyDisposables.clear();
+        onDestroyDisposable.clear();
         super.onDestroy();
     }
 
@@ -118,5 +121,10 @@ public abstract class MvpFragment<ControllerType extends Contract.Controller, Ho
         if (hasCallBack()) {
             getCallBack().hideProgress();
         }
+    }
+
+    @Override
+    public boolean isStarted() {
+        return isStarted;
     }
 }

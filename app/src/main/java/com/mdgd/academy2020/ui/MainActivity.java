@@ -130,7 +130,6 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
             final Intent pickImageChooserIntent = CropImage.getPickImageChooserIntent(this);
             if (getPackageManager().resolveActivity(pickImageChooserIntent, 0) == null) {
                 findViewById(getFragmentContainerId()).postDelayed(() -> onCaptureImageSubject.onNext(new Result<>(new Exception("There is no activity to handle image selection"))), 500);
-                //todo: handle?
             } else {
                 startActivityForResult(CropImage.getPickImageChooserIntent(this), PICK_IMAGE_CHOOSER_REQUEST_CODE);
             }
