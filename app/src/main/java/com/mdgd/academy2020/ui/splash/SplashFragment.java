@@ -19,6 +19,7 @@ public class SplashFragment extends MvpFragment<SplashContract.Controller, Splas
     }
 
     public SplashFragment() {
+        setRetainInstance(true);
         controller = new SplashFragmentLocator().createController();
     }
 

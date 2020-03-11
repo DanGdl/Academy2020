@@ -35,6 +35,7 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     }
 
     public SignInFragment() {
+        setRetainInstance(true);
         controller = new SignInFragmentLocator().createController();
     }
 

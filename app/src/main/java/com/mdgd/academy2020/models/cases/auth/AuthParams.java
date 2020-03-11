@@ -16,7 +16,7 @@ public class AuthParams {
     }
 
     public static AuthParams newLogInParams(String email, String password, AuthView view) {
-        return new AuthParams("", email, password, "", view, TYPE_SIGN_IN);
+        return new AuthParams("", email, password, "", view, TYPE_LOG_IN);
     }
 
     private AuthParams(String nickname, String email, String password, String imageUrl, AuthView view, int type) {

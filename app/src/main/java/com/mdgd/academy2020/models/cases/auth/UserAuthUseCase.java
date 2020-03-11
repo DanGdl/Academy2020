@@ -39,29 +39,40 @@ public class UserAuthUseCase implements UseCase<AuthParams, Disposable> {
                 single = Single.never();
         }
         return single
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable -> {
                     if (params.hasView()) {
                         params.getView().showProgress();
                     }
                 })
-                .doOnError(throwable -> {
+                .doFinally(() -> {
                     if (params.hasView()) {
                         params.getView().hideProgress();
-                        params.getView().showError(params.getView().getString(R.string.unknown_error), throwable.getMessage());
                     }
                 })
-                .doOnSuccess(result -> {
-                    if (result.isFail()) {
-                        params.getView().showError(params.getView().getString(R.string.login_failed), result.error.getMessage());
+                .subscribe(result -> {
+                    final AuthView view = params.getView();
+                    if (result.isFail() && params.hasView()) {
+                        if (result.error == null) {
+                            view.showError(view.getString(R.string.login_failed), view.getString(R.string.unknown_error));
+                        } else {
+                            view.showError(view.getString(R.string.login_failed), result.error.getMessage());
+                        }
                     } else {
                         // todo save image url
                         prefs.putAuthToken(result.data);
-                        params.getView().showToast(R.string.login_successful);
-                        params.getView().proceedToLobby();
+                        if (params.hasView()) {
+                            view.showToast(R.string.login_successful);
+                            view.proceedToLobby();
+                        }
                     }
-                })
-                .subscribe();
+                }, error -> {
+                    if (params.hasView()) {
+                        final AuthView view = params.getView();
+                        view.hideProgress();
+                        view.showError(view.getString(R.string.login_failed), view.getString(R.string.unknown_error));
+                    }
+                });
     }
 }

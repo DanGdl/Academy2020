@@ -19,7 +19,7 @@ class SplashController extends MvpController<SplashContract.View> implements Spl
     @Override
     public void checkUserStatus() {
         onStopDisposable.add(Single.just(prefs.getAuthToken())
-                .delay(5, TimeUnit.SECONDS)
+                .delay(2, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(token -> !TextUtil.isEmpty(token))
                 .filter(hasToken -> hasView())

@@ -98,11 +98,6 @@ public abstract class MvpFragment<ControllerType extends Contract.Controller, Ho
     protected abstract ControllerType getController();
 
     @Override
-    public void showToast(int strResId) {
-        Toast.makeText(getActivity(), strResId, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
     public void showProgress() {
         if (hasCallBack()) {
             getCallBack().showProgress(R.string.empty, R.string.empty);
@@ -121,6 +116,11 @@ public abstract class MvpFragment<ControllerType extends Contract.Controller, Ho
         if (hasCallBack()) {
             getCallBack().hideProgress();
         }
+    }
+
+    @Override
+    public void showToast(int strResId, Object... args) {
+        Toast.makeText(getActivity(), getString(strResId, args), Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.mdgd.academy2020.arch.MvpController;
 import com.mdgd.academy2020.models.cases.auth.AuthParams;
 import com.mdgd.academy2020.models.cases.auth.UserAuthUseCase;
 import com.mdgd.academy2020.models.validators.Validator;
-import com.mdgd.academy2020.util.TextUtil;
 
 import io.reactivex.Observable;
 
@@ -36,16 +35,16 @@ class LoginController extends MvpController<LoginContract.View> implements Login
                         .map(emailValidator::validate)
                         .filter(errorMsg -> hasView())
                         .map(errorMsg -> {
-                            view.setEmailError(errorMsg);
-                            return TextUtil.isEmpty(errorMsg);
+                            view.setEmailError(errorMsg.isPresent() ? errorMsg.get() : null);
+                            return !errorMsg.isPresent();
                         }),
                 view.getPasswordObservable()
                         .doOnNext(password -> this.password = password)
                         .map(passwordValidator::validate)
                         .filter(errorMsg -> hasView())
                         .map(errorMsg -> {
-                            view.setPasswordError(errorMsg);
-                            return TextUtil.isEmpty(errorMsg);
+                            view.setPasswordError(errorMsg.isPresent() ? errorMsg.get() : null);
+                            return !errorMsg.isPresent();
                         }), (isEmailValid, isPasswordValid) -> isEmailValid && isPasswordValid)
                 .filter(isEnabled -> hasView())
                 .subscribe(view::setLoginEnabled));

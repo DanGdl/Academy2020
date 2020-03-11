@@ -3,10 +3,14 @@ package com.mdgd.academy2020.models.network;
 import android.app.Application;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.mdgd.academy2020.BuildConfig;
@@ -28,6 +32,17 @@ public class FirebaseNetwork implements Network {
         firebase = FirebaseFirestore.getInstance();
     }
 
+    private <T> Single<Result<T>> execRequest(Task<T> task) {
+        return Single.fromCallable(() -> {
+            try {
+                return new Result<>(Tasks.await(task));
+            } catch (Throwable e) {
+                e.printStackTrace();
+                return new Result<>(e);
+            }
+        });
+    }
+
     @Override
     public boolean hasUser() {
         return firebaseAuth.getCurrentUser() != null;
@@ -35,46 +50,51 @@ public class FirebaseNetwork implements Network {
 
     @Override
     public Single<Result<String>> execLogin(String email, String password) {
-        return Single.just(firebaseAuth.signInWithEmailAndPassword(email, password))
-                .flatMap(task -> {
-                    if (task.isSuccessful()) {
-                        return Single.just(firebaseAuth.getCurrentUser().getIdToken(true))
-                                .map(tokenTask -> {
-                                    if (tokenTask.isSuccessful()) {
-                                        return new Result<>(tokenTask.getResult().getToken());
-                                    } else {
-                                        return new Result<>(tokenTask.getException());
-                                    }
-                                });
+        return execRequest(firebaseAuth.signInWithEmailAndPassword(email, password))
+                .flatMap(result -> {
+                    if (result.isFail()) {
+                        Log.d("FirebaseNetwork", "login Has error " + (result.error != null));
+                        return Single.just(new Result<>(result.error));
                     } else {
-                        return Single.just(new Result<>(task.getException()));
+                        return Single.fromCallable(() -> {
+                            try {
+                                final GetTokenResult await = Tasks.await(firebaseAuth.getCurrentUser().getIdToken(true));
+                                return new Result<>(await.getToken());
+                            } catch (Throwable e) {
+                                e.printStackTrace();
+                                return new Result<>(e);
+                            }
+                        });
                     }
                 });
     }
 
     @Override
-    public Single<Result<String>> createNewUser(String nickname, String email, String password, String imageUrl) {
-        return Single.just(firebaseAuth.createUserWithEmailAndPassword(email, password))
-                .flatMap(task -> {
-                    if (task.isSuccessful()) {
+    public Single<Result<String>> createNewUser(String nickname, String email, String
+            password, String imageUrl) {
+        return execRequest(firebaseAuth.createUserWithEmailAndPassword(email, password))
+                .flatMap(result -> {
+                    if (result.isFail()) {
+                        Log.d("FirebaseNetwork", "new User Has error " + (result.error != null));
+                        return Single.just(new Result<>(result.error));
+                    } else {
                         return execLogin(email, password)
-                                .flatMap(result -> {
-                                    if (result.isFail()) {
-                                        return Single.just(result);
+                                .flatMap(loginResult -> {
+                                    if (loginResult.isFail()) {
+                                        Log.d("FirebaseNetwork", "login2 Has error " + (loginResult.error != null));
+                                        return Single.just(loginResult);
                                     } else {
                                         return updateUser(nickname, imageUrl)
-                                                .toSingleDefault(result);
+                                                .toSingleDefault(loginResult);
                                     }
                                 });
-                    } else {
-                        return Single.just(new Result<>(task.getException()));
                     }
                 });
     }
 
     private Completable updateUser(String nickname, String imageUrl) {
         // todo save nickname and image
-        return uploadImage() Single.just(firebase.collection("users").add());
+        return Completable.complete(); // uploadImage() Single.just(firebase.collection("users").add());
     }
 
     @Override

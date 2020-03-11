@@ -2,6 +2,7 @@ package com.mdgd.academy2020.models.validators;
 
 import android.content.Context;
 
+import com.google.common.base.Optional;
 import com.mdgd.academy2020.R;
 
 import java.util.regex.Pattern;
@@ -15,7 +16,7 @@ public class EmailValidator implements Validator<String> {
     }
 
     @Override
-    public String validate(String data) {
-        return VALID_EMAIL_ADDRESS_REGEX.matcher(data).matches() ? null : context.getString(R.string.email_is_not_valid);
+    public Optional<String> validate(String data) {
+        return Optional.fromNullable(VALID_EMAIL_ADDRESS_REGEX.matcher(data).matches() ? null : context.getString(R.string.email_is_not_valid));
     }
 }

@@ -133,8 +133,8 @@ public abstract class MvpDialogFragment<Presenter extends Contract.Controller, H
 
 
     @Override
-    public void showToast(int strResId) {
-        Toast.makeText(getActivity(), strResId, Toast.LENGTH_LONG).show();
+    public void showToast(int strResId, Object... args) {
+        Toast.makeText(getActivity(), getString(strResId, args), Toast.LENGTH_LONG).show();
     }
 
     @Override

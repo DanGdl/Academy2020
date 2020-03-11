@@ -24,7 +24,7 @@ public class Contract {
     public interface View {
         String getString(int strResId, Object... args);
 
-        void showToast(int strResId);
+        void showToast(int strResId, Object... args);
 
         void showProgress();
 

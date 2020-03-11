@@ -34,6 +34,7 @@ import io.reactivex.subjects.PublishSubject;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends HostActivity implements ProgressContainer, SplashContract.Host,
         AuthContract.Host, LoginContract.Host, SignInContract.Host {
@@ -47,8 +48,9 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        addFragment(SplashFragment.newInstance());
+        if (getSupportFragmentManager().getFragments().size() == 0) {
+            addFragment(SplashFragment.newInstance());
+        }
     }
 
     @Override
@@ -126,7 +128,7 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
 
     @Override
     public Single<Result<String>> showTakePictureScreen() {
-        if (PermissionsUtil.requestPermissionsIfNeed(this, RC_IMAGE_PERMISSIONS, READ_EXTERNAL_STORAGE, CAMERA)) {
+        if (PermissionsUtil.requestPermissionsIfNeed(this, RC_IMAGE_PERMISSIONS, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, CAMERA)) {
             final Intent pickImageChooserIntent = CropImage.getPickImageChooserIntent(this);
             if (getPackageManager().resolveActivity(pickImageChooserIntent, 0) == null) {
                 findViewById(getFragmentContainerId()).postDelayed(() -> onCaptureImageSubject.onNext(new Result<>(new Exception("There is no activity to handle image selection"))), 500);
@@ -143,7 +145,7 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
         if (requestCode == RC_IMAGE_PERMISSIONS) {
             if (PermissionsUtil.areAllPermissionsGranted(grantResults)) {
                 showTakePictureScreen();
-            } else {
+            } else if (grantResults.length != 0) {
                 onCaptureImageSubject.onNext(new Result<>(new Exception("Permissions not granted")));
             }
         }
@@ -172,10 +174,10 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
         options.setStatusBarColor(Color.BLACK);
         options.setCircleDimmedLayer(true);
 
-        final File destinationFile = new File(getCacheDir(), String.valueOf(System.currentTimeMillis()));
+        final File destinationFile = new File(getCacheDir(), System.currentTimeMillis() + ".jpeg");
         final Intent intent = UCrop.of(imageUri, Uri.fromFile(destinationFile))
                 .withOptions(options)
-                .withMaxResultSize(512, 512)
+                .withMaxResultSize(512, 512) // todo Dan: fix sizes
                 .withAspectRatio(5, 5)
                 .getIntent(this);
 

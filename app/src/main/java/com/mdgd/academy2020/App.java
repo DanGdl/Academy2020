@@ -2,6 +2,7 @@ package com.mdgd.academy2020;
 
 import android.app.Application;
 
+import com.google.firebase.FirebaseApp;
 import com.mdgd.academy2020.models.DefaultModelProvider;
 import com.mdgd.academy2020.models.ModelProvider;
 
@@ -17,6 +18,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        FirebaseApp.initializeApp(this);
         modelProvider = new DefaultModelProvider(this);
     }
 

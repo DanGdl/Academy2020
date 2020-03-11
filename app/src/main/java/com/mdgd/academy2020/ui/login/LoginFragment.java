@@ -26,6 +26,7 @@ public class LoginFragment extends MvpFragment<LoginContract.Controller, LoginCo
     }
 
     public LoginFragment() {
+        setRetainInstance(true);
         controller = new LoginFragmentLocator().createController();
     }
 

@@ -1,5 +1,6 @@
 package com.mdgd.academy2020.ui.signin;
 
+import com.google.common.base.Optional;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.MvpController;
 import com.mdgd.academy2020.models.cases.auth.AuthParams;
@@ -44,38 +45,42 @@ class SignInController extends MvpController<SignInContract.View> implements Sig
                         .doOnNext(email -> this.email = email)
                         .filter(email -> hasView())
                         .map(emailValidator::validate)
-                        .doOnNext(errorMessage -> view.setEmailError(errorMessage))
-                        .map(TextUtil::isEmpty),
+                        .doOnNext(errorMsg -> view.setEmailError(errorMsg.isPresent() ? errorMsg.get() : null))
+                        .map(errorMsg -> !errorMsg.isPresent()),
 
                 view.getNickNameObservable()
                         .doOnNext(name -> nickname = name)
                         .filter(name -> hasView())
                         .map(name -> !TextUtil.isEmpty(name))
-                        .doOnNext(isValid -> view.setNickNameError(isValid ? view.getString(R.string.please_fill_nuckname) : null)),
+                        .doOnNext(isValid -> view.setNickNameError(isValid ? null : view.getString(R.string.please_fill_nuckname))),
 
                 Observable.combineLatest(
                         view.getPasswordObservable()
                                 .doOnNext(password -> this.password = password)
                                 .map(password -> new PasswordValidationResult(password, passwordValidator.validate(password)))
                                 .filter(result -> hasView())
-                                .doOnNext(result -> view.setPasswordError(result.errorMessage)),
+                                .doOnNext(result -> view.setPasswordError(result.errorMessage.isPresent() ? result.errorMessage.get() : null)),
 
                         view.getPasswordVerificationObservable().filter(result -> hasView()),
 
                         (result, passwordVerification) -> {
                             final String errorMsg = checkPasswordVerification(result.password, passwordVerification);
                             view.setPasswordVerificationError(errorMsg);
-                            return TextUtil.isEmpty(result.errorMessage) && TextUtil.isEmpty(errorMsg);
+                            return !result.errorMessage.isPresent() && TextUtil.isEmpty(errorMsg);
                         }),
 
                 (isEmailValid, isNicknameValid, arePasswordsValid) -> isEmailValid && isNicknameValid && arePasswordsValid)
                 .filter(isEnabled -> hasView())
                 .subscribe(isEnabled -> view.setSignInEnabled(isEnabled)));
+
+        if (!TextUtil.isEmpty(imageUrl) && hasView()) {
+            view.loadAvatar(imageUrl);
+        }
     }
 
     @Override
     public void takePicture() {
-        onStopDisposable.add(view.showTakePictureScreen().subscribe(result -> {
+        onDestroyDisposable.add(view.showTakePictureScreen().subscribe(result -> {
             if (result.isFail() && hasView()) {
                 view.showError(view.getString(R.string.failed_to_take_picture), result.error.getMessage());
             } else {
@@ -90,9 +95,9 @@ class SignInController extends MvpController<SignInContract.View> implements Sig
 
     private static class PasswordValidationResult {
         final String password;
-        final String errorMessage;
+        final Optional<String> errorMessage;
 
-        PasswordValidationResult(String password, String errorMessage) {
+        PasswordValidationResult(String password, Optional<String> errorMessage) {
             this.password = password;
             this.errorMessage = errorMessage;
         }

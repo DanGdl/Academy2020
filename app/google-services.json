@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "9067495663",
+    "firebase_url": "https://academy2020-550e5.firebaseio.com",
+    "project_id": "academy2020-550e5",
+    "storage_bucket": "academy2020-550e5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:9067495663:android:d210ceae85b5bd4db05b1a",
+        "android_client_info": {
+          "package_name": "com.mdgd.academy2020"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "9067495663-tho116h8p2hldnhal4c7956g91dme293.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mdgd.academy2020",
+            "certificate_hash": "239c7b489c613c210c4911816bc9c0e90ad399d5"
+          }
+        },
+        {
+          "client_id": "9067495663-varg5q69hfb5f91oqeesr69e7c63nrv1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvixEeLTq1xOdt5tN-Kti0zukq-ZM8eWg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "9067495663-varg5q69hfb5f91oqeesr69e7c63nrv1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

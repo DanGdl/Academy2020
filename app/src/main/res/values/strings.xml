@@ -11,7 +11,7 @@
     <string name="verify_password">Verify password</string>
     <string name="enter_password">Enter password</string>
     <string name="enter_your_nick_name">Enter nickname</string>
-    <string name="please_fill_nuckname">Please fselect nickname</string>
+    <string name="please_fill_nuckname">Please select nickname</string>
     <string name="password_too_short">Password is too short</string>
     <string name="verification_is_not_same">Doesn\'t match to password</string>
     <string name="failed_to_take_picture">Failed to take picture</string>

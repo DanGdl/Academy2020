@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
@@ -6,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.mdgd.academy2020"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -62,6 +63,8 @@ dependencies {
     implementation 'com.jakewharton.rx2:replaying-share:2.1.1'
 
     implementation 'com.google.code.gson:gson:2.8.5'
+
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
     /**
      * Cropping images
