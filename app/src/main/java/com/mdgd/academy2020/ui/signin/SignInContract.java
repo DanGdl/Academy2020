@@ -16,6 +16,8 @@ public class SignInContract {
         void setupSubscriptions();
 
         void takePicture();
+
+        void generateImage();
     }
 
     public interface View extends Contract.View, AuthView {

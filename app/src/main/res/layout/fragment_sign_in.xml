@@ -19,6 +19,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/retry_avatar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:text="@string/create_another"
+        app:layout_constraintEnd_toStartOf="@+id/avatar"
+        app:layout_constraintTop_toTopOf="@id/avatar" />
+
     <EditText
         android:id="@+id/email"
         android:layout_width="wrap_content"

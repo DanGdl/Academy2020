@@ -55,6 +55,7 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
         super.onViewCreated(view, savedInstanceState);
         avatarView = view.findViewById(R.id.avatar);
         avatarView.setOnClickListener(this);
+        view.findViewById(R.id.retry_avatar).setOnClickListener(this);
         nickNameView = view.findViewById(R.id.nick_name);
         passwordView = view.findViewById(R.id.password);
         passwordVerificationView = view.findViewById(R.id.password_verification);
@@ -72,7 +73,9 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     @Override
     public void onClick(View v) {
         final int id = v.getId();
-        if (R.id.avatar == id) {
+        if (R.id.retry_avatar == id) {
+            getController().generateImage();
+        } else if (R.id.avatar == id) {
             getController().takePicture();
         } else if (R.id.sign_in_btn == id) {
             getController().execSignIn();

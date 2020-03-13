@@ -27,7 +27,7 @@ public class AppPrefs extends BasicPrefsImpl implements Prefs {
     }
 
     @Override
-    public String getImageHash() {
+    public String getAvatarHash() {
         return get(AVATAR_HASH, "");
     }
 

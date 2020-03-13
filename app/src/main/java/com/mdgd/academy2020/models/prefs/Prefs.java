@@ -5,7 +5,7 @@ public interface Prefs {
 
     void putAuthToken(String token);
 
-    String getImageHash();
+    String getAvatarHash();
 
     void putImageHash(String hash);
 }

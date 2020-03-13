@@ -16,4 +16,5 @@
     <string name="verification_is_not_same">Doesn\'t match to password</string>
     <string name="failed_to_take_picture">Failed to take picture</string>
     <string name="email_is_not_valid">Email is not valid</string>
+    <string name="create_another">Refresh</string>
 </resources>
