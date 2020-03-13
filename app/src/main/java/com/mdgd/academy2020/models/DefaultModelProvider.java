@@ -2,6 +2,8 @@ package com.mdgd.academy2020.models;
 
 import android.app.Application;
 
+import com.mdgd.academy2020.models.avatars.AvatarUrlGenerator;
+import com.mdgd.academy2020.models.avatars.GravatarUrlGenerator;
 import com.mdgd.academy2020.models.cache.Cache;
 import com.mdgd.academy2020.models.cache.CacheImpl;
 import com.mdgd.academy2020.models.network.FirebaseNetwork;
@@ -48,5 +50,10 @@ public class DefaultModelProvider implements ModelProvider {
     @Override
     public Validator<String> getPasswordValidator() {
         return new PasswordValidator(app);
+    }
+
+    @Override
+    public AvatarUrlGenerator getAvatarUrlGenerator() {
+        return new GravatarUrlGenerator();
     }
 }

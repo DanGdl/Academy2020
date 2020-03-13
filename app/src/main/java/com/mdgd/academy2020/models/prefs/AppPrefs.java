@@ -5,6 +5,7 @@ import android.content.Context;
 public class AppPrefs extends BasicPrefsImpl implements Prefs {
 
     private static final String AUTH_TOKEN = "auth_token";
+    private static final String AVATAR_HASH = "avatar_hash";
 
     public AppPrefs(Context ctx) {
         super(ctx);
@@ -23,5 +24,15 @@ public class AppPrefs extends BasicPrefsImpl implements Prefs {
     @Override
     public void putAuthToken(String token) {
         put(AUTH_TOKEN, token);
+    }
+
+    @Override
+    public String getImageHash() {
+        return get(AVATAR_HASH, "");
+    }
+
+    @Override
+    public void putImageHash(String hash) {
+        put(AVATAR_HASH, hash);
     }
 }

@@ -3,28 +3,40 @@ package com.mdgd.academy2020.ui.signin;
 import com.google.common.base.Optional;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.MvpController;
+import com.mdgd.academy2020.models.avatars.AvatarUrlGenerator;
 import com.mdgd.academy2020.models.cases.auth.AuthParams;
 import com.mdgd.academy2020.models.cases.auth.UserAuthUseCase;
+import com.mdgd.academy2020.models.prefs.Prefs;
 import com.mdgd.academy2020.models.validators.Validator;
 import com.mdgd.academy2020.util.TextUtil;
 
+import java.util.UUID;
+
 import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 class SignInController extends MvpController<SignInContract.View> implements SignInContract.Controller {
 
-    private final Validator<String> emailValidator;
+    private final AvatarUrlGenerator avatarUrlGenerator;
     private final Validator<String> passwordValidator;
+    private final Validator<String> emailValidator;
     private final UserAuthUseCase userAuthUseCase;
+    private final Prefs prefs;
 
     private String imageUrl = "";
     private String nickname = "";
     private String password = "";
     private String email = "";
 
-    SignInController(Validator<String> emailValidator, Validator<String> passwordValidator, UserAuthUseCase userAuthUseCase) {
+    SignInController(Validator<String> emailValidator, Validator<String> passwordValidator,
+                     UserAuthUseCase userAuthUseCase, Prefs prefs, AvatarUrlGenerator avatarUrlGenerator) {
         this.emailValidator = emailValidator;
+        this.prefs = prefs;
         this.passwordValidator = passwordValidator;
         this.userAuthUseCase = userAuthUseCase;
+        this.avatarUrlGenerator = avatarUrlGenerator;
     }
 
     private String checkPasswordVerification(String password, String passwordVerification) {
@@ -73,9 +85,22 @@ class SignInController extends MvpController<SignInContract.View> implements Sig
                 .filter(isEnabled -> hasView())
                 .subscribe(isEnabled -> view.setSignInEnabled(isEnabled)));
 
-        if (!TextUtil.isEmpty(imageUrl) && hasView()) {
-            view.loadAvatar(imageUrl);
-        }
+        onStopDisposable.add(Single.just(imageUrl)
+                .flatMap(url -> TextUtil.isEmpty(url) ?
+                        Single.just(prefs.getImageHash())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .map(hash -> {
+                                    if (TextUtil.isEmpty(hash)) {
+                                        hash = UUID.randomUUID().toString();
+                                    }
+                                    return avatarUrlGenerator.generate(hash);
+                                })
+                        : Single.just(url))
+                .doOnEvent((s, throwable) -> imageUrl = s)
+                // todo check if file loaded and load if need
+                .filter(url -> hasView())
+                .subscribe(url -> view.loadAvatar(url)));
     }
 
     @Override

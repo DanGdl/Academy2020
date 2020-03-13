@@ -4,4 +4,8 @@ public interface Prefs {
     String getAuthToken();
 
     void putAuthToken(String token);
+
+    String getImageHash();
+
+    void putImageHash(String hash);
 }

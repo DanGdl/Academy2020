@@ -1,5 +1,6 @@
 package com.mdgd.academy2020.models;
 
+import com.mdgd.academy2020.models.avatars.AvatarUrlGenerator;
 import com.mdgd.academy2020.models.cache.Cache;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.prefs.Prefs;
@@ -16,4 +17,6 @@ public interface ModelProvider {
     Validator<String> getEmailValidator();
 
     Validator<String> getPasswordValidator();
+
+    AvatarUrlGenerator getAvatarUrlGenerator();
 }
