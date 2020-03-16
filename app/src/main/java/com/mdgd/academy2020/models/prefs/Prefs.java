@@ -8,4 +8,12 @@ public interface Prefs {
     String getAvatarHash();
 
     void putImageHash(String hash);
+
+    void putAvatarUrl(String avatarUrl);
+
+    String getAvatarUrl();
+
+    void putAvatarPath(String avatarPath);
+
+    String getAvatarPath();
 }

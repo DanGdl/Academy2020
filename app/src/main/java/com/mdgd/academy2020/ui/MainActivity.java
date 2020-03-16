@@ -177,7 +177,7 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
         final File destinationFile = new File(getCacheDir(), System.currentTimeMillis() + ".jpeg");
         final Intent intent = UCrop.of(imageUri, Uri.fromFile(destinationFile))
                 .withOptions(options)
-                .withMaxResultSize(512, 512) // todo Dan: fix sizes
+                .withMaxResultSize(512, 512) // todo Dan: fix sizes?
                 .withAspectRatio(5, 5)
                 .getIntent(this);
 

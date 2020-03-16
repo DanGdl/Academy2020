@@ -1,11 +1,13 @@
 package com.mdgd.academy2020.models.cases.auth;
 
 import com.mdgd.academy2020.R;
+import com.mdgd.academy2020.dto.LoginResponse;
 import com.mdgd.academy2020.models.cases.UseCase;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.prefs.Prefs;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -23,7 +25,7 @@ public class UserAuthUseCase implements UseCase<AuthParams, Disposable> {
 
     @Override
     public Disposable exec(AuthParams params) {
-        final Single<Result<String>> single;
+        final Single<Result<LoginResponse>> single;
         switch (params.getType()) {
             case AuthParams.TYPE_SIGN_IN: {
                 single = network.createNewUser(params.getNickName(), params.getEmail(), params.getPassword(), params.getImageUrl());
@@ -51,6 +53,20 @@ public class UserAuthUseCase implements UseCase<AuthParams, Disposable> {
                         params.getView().hideProgress();
                     }
                 })
+                .flatMap(result -> {
+                    if (result.isFail()) {
+                        return Single.just(result);
+                    } else {
+                        return Completable.fromAction(() -> {
+                            prefs.putAuthToken(result.data.token);
+                            prefs.putAvatarUrl(result.data.avatarUrl);
+                            prefs.putAvatarPath(result.data.avatarPath);
+                        })
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .toSingleDefault(result);
+                    }
+                })
                 .subscribe(result -> {
                     final AuthView view = params.getView();
                     if (result.isFail() && params.hasView()) {
@@ -60,8 +76,6 @@ public class UserAuthUseCase implements UseCase<AuthParams, Disposable> {
                             view.showError(view.getString(R.string.login_failed), result.error.getMessage());
                         }
                     } else {
-                        // todo save image url
-                        prefs.putAuthToken(result.data);
                         if (params.hasView()) {
                             view.showToast(R.string.login_successful);
                             view.proceedToLobby();

@@ -6,6 +6,8 @@ public class AppPrefs extends BasicPrefsImpl implements Prefs {
 
     private static final String AUTH_TOKEN = "auth_token";
     private static final String AVATAR_HASH = "avatar_hash";
+    private static final String AVATAR_PATH = "avatar_path";
+    private static final String AVATAR_URL = "avatar_url";
 
     public AppPrefs(Context ctx) {
         super(ctx);
@@ -34,5 +36,25 @@ public class AppPrefs extends BasicPrefsImpl implements Prefs {
     @Override
     public void putImageHash(String hash) {
         put(AVATAR_HASH, hash);
+    }
+
+    @Override
+    public void putAvatarUrl(String avatar) {
+        put(AVATAR_URL, avatar);
+    }
+
+    @Override
+    public String getAvatarUrl() {
+        return get(AVATAR_URL, "");
+    }
+
+    @Override
+    public void putAvatarPath(String avatarPath) {
+        put(AVATAR_PATH, avatarPath);
+    }
+
+    @Override
+    public String getAvatarPath() {
+        return get(AVATAR_PATH, "");
     }
 }

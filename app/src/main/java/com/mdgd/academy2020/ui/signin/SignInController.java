@@ -97,7 +97,6 @@ class SignInController extends MvpController<SignInContract.View> implements Sig
 
     private Disposable loadAvatar(Single<String> source) {
         return source.doOnEvent((s, throwable) -> imageUrl = s)
-                // todo check if file loaded and load if need
                 .filter(url -> hasView())
                 .subscribe(url -> view.loadAvatar(url));
     }
