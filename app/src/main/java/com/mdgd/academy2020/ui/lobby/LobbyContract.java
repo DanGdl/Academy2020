@@ -11,5 +11,6 @@ public class LobbyContract {
     }
 
     public interface Host extends Contract.Host {
+        void showProfileScreen();
     }
 }

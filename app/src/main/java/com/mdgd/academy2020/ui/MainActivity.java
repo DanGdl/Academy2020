@@ -15,6 +15,7 @@ import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.ui.auth.AuthContract;
 import com.mdgd.academy2020.ui.auth.AuthFragment;
 import com.mdgd.academy2020.ui.error.ErrorFragment;
+import com.mdgd.academy2020.ui.lobby.LobbyContract;
 import com.mdgd.academy2020.ui.lobby.LobbyFragment;
 import com.mdgd.academy2020.ui.login.LoginContract;
 import com.mdgd.academy2020.ui.login.LoginFragment;
@@ -37,7 +38,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends HostActivity implements ProgressContainer, SplashContract.Host,
-        AuthContract.Host, LoginContract.Host, SignInContract.Host {
+        AuthContract.Host, LoginContract.Host, SignInContract.Host, LobbyContract.Host {
     private static final int RC_IMAGE_PERMISSIONS = 10265;
     private static final int PICK_IMAGE_CHOOSER_REQUEST_CODE = 48556;
 
@@ -118,12 +119,12 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
 
     @Override
     public void proceedToLogIn() {
-        addFragmentToBackStack(LoginFragment.newInstance());
+        replaceFragment(LoginFragment.newInstance(), true, "login");
     }
 
     @Override
     public void proceedToSignIn() {
-        addFragmentToBackStack(SignInFragment.newInstance());
+        replaceFragment(SignInFragment.newInstance(), true, "sign_in");
     }
 
     @Override
@@ -174,6 +175,7 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
         options.setStatusBarColor(Color.BLACK);
         options.setCircleDimmedLayer(true);
 
+        // todo Dan: fix extension
         final File destinationFile = new File(getCacheDir(), System.currentTimeMillis() + ".jpeg");
         final Intent intent = UCrop.of(imageUri, Uri.fromFile(destinationFile))
                 .withOptions(options)
@@ -182,5 +184,10 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
                 .getIntent(this);
 
         startActivityForResult(intent, UCrop.REQUEST_CROP);
+    }
+
+    @Override
+    public void showProfileScreen() {
+        replaceFragment(LobbyFragment.newInstance(), true, "profile");
     }
 }

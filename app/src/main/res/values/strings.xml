@@ -17,4 +17,5 @@
     <string name="failed_to_take_picture">Failed to take picture</string>
     <string name="email_is_not_valid">Email is not valid</string>
     <string name="create_another">Refresh</string>
+    <string name="edit_profile">Edit profile</string>
 </resources>
