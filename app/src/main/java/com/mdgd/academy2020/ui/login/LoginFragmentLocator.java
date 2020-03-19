@@ -9,6 +9,6 @@ class LoginFragmentLocator {
     LoginContract.Controller createController() {
         final ModelProvider provider = App.getInstance().getModelProvider();
         return new LoginController(provider.getEmailValidator(), provider.getPasswordValidator(),
-                new UserAuthUseCase(provider.getNetwork(), provider.getPrefs()));
+                new UserAuthUseCase(provider.getNetwork(), provider.getPrefs(), provider.getFiles()));
     }
 }

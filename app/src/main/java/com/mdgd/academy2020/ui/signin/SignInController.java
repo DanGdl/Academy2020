@@ -34,11 +34,11 @@ class SignInController extends MvpController<SignInContract.View> implements Sig
 
     SignInController(Validator<String> emailValidator, Validator<String> passwordValidator,
                      UserAuthUseCase userAuthUseCase, Prefs prefs, AvatarUrlGenerator avatarUrlGenerator) {
-        this.emailValidator = emailValidator;
-        this.prefs = prefs;
+        this.avatarUrlGenerator = avatarUrlGenerator;
         this.passwordValidator = passwordValidator;
         this.userAuthUseCase = userAuthUseCase;
-        this.avatarUrlGenerator = avatarUrlGenerator;
+        this.emailValidator = emailValidator;
+        this.prefs = prefs;
     }
 
     private String checkPasswordVerification(String password, String passwordVerification) {

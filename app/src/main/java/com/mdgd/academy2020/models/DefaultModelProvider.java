@@ -6,6 +6,8 @@ import com.mdgd.academy2020.models.avatars.AvatarUrlGenerator;
 import com.mdgd.academy2020.models.avatars.GravatarUrlGenerator;
 import com.mdgd.academy2020.models.cache.Cache;
 import com.mdgd.academy2020.models.cache.CacheImpl;
+import com.mdgd.academy2020.models.files.Files;
+import com.mdgd.academy2020.models.files.FilesImpl;
 import com.mdgd.academy2020.models.network.FirebaseNetwork;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.prefs.AppPrefs;
@@ -24,7 +26,7 @@ public class DefaultModelProvider implements ModelProvider {
         this.app = app;
         cache = new CacheImpl();
         prefs = new AppPrefs(app);
-        network = new FirebaseNetwork(app);
+        network = new FirebaseNetwork(getFiles());
     }
 
     @Override
@@ -55,5 +57,10 @@ public class DefaultModelProvider implements ModelProvider {
     @Override
     public AvatarUrlGenerator getAvatarUrlGenerator() {
         return new GravatarUrlGenerator();
+    }
+
+    @Override
+    public Files getFiles() {
+        return new FilesImpl(app);
     }
 }

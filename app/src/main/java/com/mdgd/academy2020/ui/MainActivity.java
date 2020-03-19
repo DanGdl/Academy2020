@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
 
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.HostActivity;
@@ -104,7 +105,15 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
 
     @Override
     public void proceedToLobby() {
+        clearBackStack();
         replaceFragment(LobbyFragment.newInstance());
+    }
+
+    private void clearBackStack() {
+        final FragmentManager manager = getSupportFragmentManager();
+        while (manager.getBackStackEntryCount() > 0) {
+            manager.popBackStackImmediate();
+        }
     }
 
     @Override
@@ -175,7 +184,6 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
         options.setStatusBarColor(Color.BLACK);
         options.setCircleDimmedLayer(true);
 
-        // todo Dan: fix extension
         final File destinationFile = new File(getCacheDir(), System.currentTimeMillis() + ".jpeg");
         final Intent intent = UCrop.of(imageUri, Uri.fromFile(destinationFile))
                 .withOptions(options)
