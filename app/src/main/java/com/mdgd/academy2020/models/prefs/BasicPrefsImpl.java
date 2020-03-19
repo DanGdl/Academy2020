@@ -165,4 +165,12 @@ public abstract class BasicPrefsImpl {
     public Map<String, ?> get() {
         return getPrefs(getDefaultPrefsFileName()).getAll();
     }
+
+    public void clear() {
+        getEditor().clear().apply();
+    }
+
+    public void clear(@NonNull String fileName) {
+        getEditor(fileName).clear().apply();
+    }
 }

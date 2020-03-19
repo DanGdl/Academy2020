@@ -1,8 +1,8 @@
 package com.mdgd.academy2020.ui.signin;
 
 import com.mdgd.academy2020.App;
+import com.mdgd.academy2020.cases.auth.UserAuthUseCase;
 import com.mdgd.academy2020.models.ModelProvider;
-import com.mdgd.academy2020.models.cases.auth.UserAuthUseCase;
 
 class SignInFragmentLocator {
 

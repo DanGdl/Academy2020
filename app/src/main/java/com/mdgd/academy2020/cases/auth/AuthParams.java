@@ -1,4 +1,4 @@
-package com.mdgd.academy2020.models.cases.auth;
+package com.mdgd.academy2020.cases.auth;
 
 public class AuthParams {
     static final int TYPE_SIGN_IN = 1;

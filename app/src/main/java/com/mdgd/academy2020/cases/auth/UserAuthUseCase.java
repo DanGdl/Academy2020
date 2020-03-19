@@ -1,9 +1,9 @@
-package com.mdgd.academy2020.models.cases.auth;
+package com.mdgd.academy2020.cases.auth;
 
 import com.mdgd.academy2020.R;
+import com.mdgd.academy2020.cases.UseCase;
 import com.mdgd.academy2020.dto.AvatarUpdate;
 import com.mdgd.academy2020.dto.UserData;
-import com.mdgd.academy2020.models.cases.UseCase;
 import com.mdgd.academy2020.models.files.Files;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;

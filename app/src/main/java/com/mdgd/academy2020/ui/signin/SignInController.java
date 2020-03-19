@@ -3,9 +3,9 @@ package com.mdgd.academy2020.ui.signin;
 import com.google.common.base.Optional;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.MvpController;
+import com.mdgd.academy2020.cases.auth.AuthParams;
+import com.mdgd.academy2020.cases.auth.UserAuthUseCase;
 import com.mdgd.academy2020.models.avatars.AvatarUrlGenerator;
-import com.mdgd.academy2020.models.cases.auth.AuthParams;
-import com.mdgd.academy2020.models.cases.auth.UserAuthUseCase;
 import com.mdgd.academy2020.models.prefs.Prefs;
 import com.mdgd.academy2020.models.validators.Validator;
 import com.mdgd.academy2020.util.TextUtil;
@@ -48,7 +48,7 @@ class SignInController extends MvpController<SignInContract.View> implements Sig
     @Override
     public void execSignIn() {
         if (hasView()) {
-            onStopDisposable.add(userAuthUseCase.exec(AuthParams.newSignInParams(nickname, email, password, imageUrl, view)));
+            onDestroyDisposable.add(userAuthUseCase.exec(AuthParams.newSignInParams(nickname, email, password, imageUrl, view)));
         }
     }
 

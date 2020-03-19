@@ -1,8 +1,8 @@
 package com.mdgd.academy2020.ui.login;
 
 import com.mdgd.academy2020.arch.MvpController;
-import com.mdgd.academy2020.models.cases.auth.AuthParams;
-import com.mdgd.academy2020.models.cases.auth.UserAuthUseCase;
+import com.mdgd.academy2020.cases.auth.AuthParams;
+import com.mdgd.academy2020.cases.auth.UserAuthUseCase;
 import com.mdgd.academy2020.models.validators.Validator;
 
 import io.reactivex.Observable;
@@ -24,7 +24,7 @@ class LoginController extends MvpController<LoginContract.View> implements Login
 
     @Override
     public void execLogIn() {
-        onStopDisposable.add(userAuthUseCase.exec(AuthParams.newLogInParams(email, password, view)));
+        onDestroyDisposable.add(userAuthUseCase.exec(AuthParams.newLogInParams(email, password, view)));
     }
 
     @Override

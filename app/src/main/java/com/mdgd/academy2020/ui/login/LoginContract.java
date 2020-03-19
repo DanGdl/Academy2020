@@ -1,7 +1,7 @@
 package com.mdgd.academy2020.ui.login;
 
 import com.mdgd.academy2020.arch.Contract;
-import com.mdgd.academy2020.models.cases.auth.AuthView;
+import com.mdgd.academy2020.cases.auth.AuthView;
 
 import io.reactivex.Observable;
 

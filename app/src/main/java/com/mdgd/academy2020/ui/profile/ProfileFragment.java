@@ -8,8 +8,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.jakewharton.rxbinding3.view.RxView;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.fragments.MvpFragment;
+
+import io.reactivex.Observable;
+import kotlin.Unit;
 
 public class ProfileFragment extends MvpFragment<ProfileContract.Controller, ProfileContract.Host> implements ProfileContract.View {
     private ProfileContract.Controller controller;
@@ -36,5 +40,16 @@ public class ProfileFragment extends MvpFragment<ProfileContract.Controller, Pro
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getController().setupSubscriptions();
+    }
+
+    @Override
+    public Observable<Unit> getLogoutObservable() {
+        return RxView.clicks(getView().findViewById(R.id.profile_logout));
     }
 }

@@ -16,4 +16,6 @@ public interface Prefs {
     void putAvatarPath(String avatarPath);
 
     String getAvatarPath();
+
+    void clear();
 }
