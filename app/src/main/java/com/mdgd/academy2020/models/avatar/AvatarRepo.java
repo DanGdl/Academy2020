@@ -105,4 +105,9 @@ public class AvatarRepo implements AvatarRepository {
     public void putAvatarPath(String avatarPath) {
         prefs.putAvatarPath(avatarPath);
     }
+
+    @Override
+    public void clear() {
+        // todo fill
+    }
 }

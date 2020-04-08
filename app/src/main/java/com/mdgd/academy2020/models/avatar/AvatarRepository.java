@@ -19,4 +19,6 @@ public interface AvatarRepository {
     void putAvatarUrl(String avatarUrl);
 
     void putAvatarPath(String avatarPath);
+
+    void clear();
 }

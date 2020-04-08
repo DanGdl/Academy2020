@@ -1,15 +1,19 @@
 package com.mdgd.academy2020.ui.signin;
 
+import com.google.common.base.Optional;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.support.auth.AuthViewController;
 import com.mdgd.academy2020.cases.auth.AuthParams;
 import com.mdgd.academy2020.cases.auth.UserAuthUseCase;
 import com.mdgd.academy2020.models.avatar.AvatarRepository;
 import com.mdgd.academy2020.models.cache.profile.ProfileCache;
+import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
+import com.mdgd.academy2020.models.prefs.Prefs;
 import com.mdgd.academy2020.models.validators.Validator;
 import com.mdgd.academy2020.util.TextUtil;
 
+import io.reactivex.Notification;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
@@ -18,12 +22,15 @@ class SignInController extends AuthViewController<SignInContract.View> implement
 
     private final UserAuthUseCase userAuthUseCase;
     private final AvatarRepository avatarRepo;
+    private final Network network;
+    private final Prefs prefs;
 
-    SignInController(ProfileCache profileCache, Validator<String> emailValidator, Validator<String> passwordValidator,
-                     UserAuthUseCase userAuthUseCase,
-                     AvatarRepository avatarRepo) {
+    SignInController(Network network, Prefs prefs, ProfileCache profileCache, Validator<String> emailValidator,
+                     Validator<String> passwordValidator, UserAuthUseCase userAuthUseCase, AvatarRepository avatarRepo) {
         super(emailValidator, passwordValidator, profileCache);
         this.userAuthUseCase = userAuthUseCase;
+        this.network = network;
+        this.prefs = prefs;
         this.avatarRepo = avatarRepo;
     }
 
@@ -75,6 +82,17 @@ class SignInController extends AuthViewController<SignInContract.View> implement
     @Override
     public void generateImage() {
         onStopDisposable.add(loadAvatar(avatarRepo.generateNewUrl()));
+    }
+
+    @Override
+    public void logout() {
+        // todo create logout use-case
+        onStopDisposable.add(handleChainWithProgress(Single.fromCallable(() -> {
+            network.logOut();
+            prefs.clear();
+            avatarRepo.clear();
+            return Notification.createOnNext(Optional.absent());
+        })).subscribe());
     }
 
     @Override

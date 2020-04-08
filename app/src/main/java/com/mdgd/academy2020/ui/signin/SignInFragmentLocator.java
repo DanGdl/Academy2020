@@ -14,8 +14,8 @@ class SignInFragmentLocator {
         final ProfileCache profileCache = new ProfileCacheImpl();
         final AvatarRepository avatarRepository = provider.getAvatarRepository(profileCache);
 
-        return new SignInController(profileCache, provider.getEmailValidator(), provider.getPasswordValidator(),
-                new UserAuthUseCase(provider.getNetwork(), provider.getPrefs(), avatarRepository),
+        return new SignInController(provider.getNetwork(), provider.getPrefs(), profileCache, provider.getEmailValidator(),
+                provider.getPasswordValidator(), new UserAuthUseCase(provider.getNetwork(), provider.getPrefs(), avatarRepository),
                 avatarRepository);
     }
 }

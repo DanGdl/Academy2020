@@ -35,6 +35,7 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     private ImageView avatarView;
     private EditText email;
     private View signInBtn;
+    private int mode;
 
     public static Fragment newSignInInstance() {
         final Bundle args = new Bundle();
@@ -56,7 +57,8 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        controller = new SignInFragmentLocator().createController(getArguments().getInt(KEY_MODE));
+        mode = getArguments().getInt(KEY_MODE);
+        controller = new SignInFragmentLocator().createController(mode);
     }
 
     @Override
@@ -75,13 +77,29 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
         super.onViewCreated(view, savedInstanceState);
         avatarView = view.findViewById(R.id.avatar);
         avatarView.setOnClickListener(this);
+
         view.findViewById(R.id.retry_avatar).setOnClickListener(this);
+
         nickNameView = view.findViewById(R.id.nick_name);
         passwordView = view.findViewById(R.id.password);
+        passwordView.setVisibility(mode == MODE_SIGN_IN ? View.VISIBLE : View.GONE);
+
         passwordVerificationView = view.findViewById(R.id.password_verification);
+        passwordVerificationView.setVisibility(mode == MODE_SIGN_IN ? View.VISIBLE : View.GONE);
+
         signInBtn = view.findViewById(R.id.sign_in_btn);
         signInBtn.setOnClickListener(this);
+
         email = view.findViewById(R.id.email);
+        email.setEnabled(mode == MODE_SIGN_IN);
+
+        final View cancel = view.findViewById(R.id.cancel);
+        cancel.setOnClickListener(this);
+        cancel.setVisibility(mode == MODE_PROFILE ? View.VISIBLE : View.GONE);
+
+        final View logout = view.findViewById(R.id.logout);
+        logout.setOnClickListener(this);
+        logout.setVisibility(mode == MODE_PROFILE ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -92,6 +110,7 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
 
     @Override
     public void onClick(View v) {
+        // todo rx
         final int id = v.getId();
         if (R.id.retry_avatar == id) {
             getController().generateImage();
@@ -99,6 +118,10 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
             getController().takePicture();
         } else if (R.id.sign_in_btn == id) {
             getController().execSignIn();
+        } else if (R.id.logout == id) {
+            getController().logout();
+        } else if (R.id.cancel == id && hasCallBack()) {
+            getCallBack().onBackPressed();
         }
     }
 

@@ -18,6 +18,8 @@ public class SignInContract {
         void takePicture();
 
         void generateImage();
+
+        void logout();
     }
 
     public interface View extends AuthContract.View {
