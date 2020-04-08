@@ -19,6 +19,8 @@ public class Contract {
         void unsubscribe();
 
         void destroy();
+
+        boolean hasView();
     }
 
     public interface View {
@@ -41,5 +43,9 @@ public class Contract {
         void showProgress(String title, String message);
 
         void hideProgress();
+
+        void showError(String title, String message);
+
+        void onBackPressed();
     }
 }

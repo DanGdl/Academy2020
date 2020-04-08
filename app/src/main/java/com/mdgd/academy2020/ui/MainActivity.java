@@ -123,6 +123,7 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
 
     @Override
     public void proceedToAuth() {
+        clearBackStack();
         replaceFragment(AuthFragment.newInstance());
     }
 
@@ -133,7 +134,7 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
 
     @Override
     public void proceedToSignIn() {
-        replaceFragment(SignInFragment.newInstance(), true, "sign_in");
+        replaceFragment(SignInFragment.newSignInInstance(), true, "sign_in");
     }
 
     @Override
@@ -196,6 +197,6 @@ public class MainActivity extends HostActivity implements ProgressContainer, Spl
 
     @Override
     public void showProfileScreen() {
-        replaceFragment(LobbyFragment.newInstance(), true, "profile");
+        replaceFragment(SignInFragment.newProfileInstance(), true, "profile");
     }
 }

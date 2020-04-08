@@ -1,52 +1,42 @@
 package com.mdgd.academy2020.ui.login;
 
-import com.mdgd.academy2020.arch.MvpController;
+import com.mdgd.academy2020.arch.support.auth.AuthViewController;
+import com.mdgd.academy2020.arch.support.auth.PasswordValidationResult;
 import com.mdgd.academy2020.cases.auth.AuthParams;
 import com.mdgd.academy2020.cases.auth.UserAuthUseCase;
+import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.validators.Validator;
 
 import io.reactivex.Observable;
 
-class LoginController extends MvpController<LoginContract.View> implements LoginContract.Controller {
+class LoginController extends AuthViewController<LoginContract.View> implements LoginContract.Controller {
 
-    private final Validator<String> emailValidator;
-    private final Validator<String> passwordValidator;
     private final UserAuthUseCase userAuthUseCase;
 
-    private String password = "";
-    private String email = "";
-
-    LoginController(Validator<String> emailValidator, Validator<String> passwordValidator, UserAuthUseCase userAuthUseCase) {
-        this.emailValidator = emailValidator;
-        this.passwordValidator = passwordValidator;
+    LoginController(Validator<String> emailValidator, Validator<String> passwordValidator,
+                    UserAuthUseCase userAuthUseCase, ProfileCache profileCache) {
+        super(emailValidator, passwordValidator, profileCache);
         this.userAuthUseCase = userAuthUseCase;
     }
 
     @Override
     public void execLogIn() {
-        onDestroyDisposable.add(userAuthUseCase.exec(AuthParams.newLogInParams(email, password, view)));
+        onDestroyDisposable.add(
+                handleAuthExecution(userAuthUseCase.exec(AuthParams.newLogInParams(profileCache.getEmail(), profileCache.getPassword())))
+        );
     }
 
     @Override
     public void setupSubscriptions() {
-        onStopDisposable.add(Observable.combineLatest(
-                view.getEmailObservable()
-                        .doOnNext(email -> this.email = email)
-                        .map(emailValidator::validate)
-                        .filter(errorMsg -> hasView())
-                        .map(errorMsg -> {
-                            view.setEmailError(errorMsg.isPresent() ? errorMsg.get() : null);
-                            return !errorMsg.isPresent();
-                        }),
-                view.getPasswordObservable()
-                        .doOnNext(password -> this.password = password)
-                        .map(passwordValidator::validate)
-                        .filter(errorMsg -> hasView())
-                        .map(errorMsg -> {
-                            view.setPasswordError(errorMsg.isPresent() ? errorMsg.get() : null);
-                            return !errorMsg.isPresent();
-                        }), (isEmailValid, isPasswordValid) -> isEmailValid && isPasswordValid)
-                .filter(isEnabled -> hasView())
-                .subscribe(view::setLoginEnabled));
+        onStopDisposable.add(
+                Observable.combineLatest(
+                        getEmailValidationObservable(),
+                        getPasswordValidationObservable()
+                                .map(PasswordValidationResult::isValid),
+
+                        (isEmailValid, isPasswordValid) -> isEmailValid && isPasswordValid
+                )
+                        .filter(isValid -> hasView())
+                        .subscribe(isValid -> view.setLoginEnabled(isValid)));
     }
 }

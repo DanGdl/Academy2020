@@ -2,6 +2,7 @@ package com.mdgd.academy2020.arch;
 
 import androidx.annotation.CallSuper;
 
+import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
 
 /**
@@ -31,7 +32,8 @@ public abstract class MvpController<V extends Contract.View> implements Contract
         view = null;
     }
 
-    protected boolean hasView() {
+    @Override
+    public boolean hasView() {
         return view != null;
     }
 
@@ -39,5 +41,19 @@ public abstract class MvpController<V extends Contract.View> implements Contract
     @CallSuper
     public void destroy() {
         onDestroyDisposable.clear();
+    }
+
+    protected <T> Single<T> handleChainWithProgress(Single<T> chain) {
+        return chain
+                .doOnSubscribe(disposable -> {
+                    if (hasView()) {
+                        view.showProgress();
+                    }
+                })
+                .doFinally(() -> {
+                    if (hasView()) {
+                        view.hideProgress();
+                    }
+                });
     }
 }

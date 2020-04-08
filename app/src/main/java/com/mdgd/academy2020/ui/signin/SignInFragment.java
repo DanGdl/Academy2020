@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.jakewharton.rxbinding3.widget.RxTextView;
 import com.mdgd.academy2020.R;
@@ -19,24 +20,43 @@ import com.mdgd.academy2020.util.ImageUtil;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
+// todo: add button cancel and logout in profile mode, add spinner for avatar. make email and password not editable, fill data
 public class SignInFragment extends MvpFragment<SignInContract.Controller, SignInContract.Host>
         implements SignInContract.View, View.OnClickListener {
 
+    private static final String KEY_MODE = "mode";
+    private static final int MODE_SIGN_IN = 1;
+    private static final int MODE_PROFILE = 2;
+
     private SignInContract.Controller controller;
-    private ImageView avatarView;
+    private EditText passwordVerificationView;
     private EditText nickNameView;
     private EditText passwordView;
-    private EditText passwordVerificationView;
+    private ImageView avatarView;
     private EditText email;
     private View signInBtn;
 
-    public static SignInFragment newInstance() {
-        return new SignInFragment();
+    public static Fragment newSignInInstance() {
+        final Bundle args = new Bundle();
+        args.putInt(KEY_MODE, MODE_SIGN_IN);
+        final SignInFragment f = new SignInFragment();
+        f.setArguments(args);
+        return f;
     }
 
-    public SignInFragment() {
+    public static Fragment newProfileInstance() {
+        final Bundle args = new Bundle();
+        args.putInt(KEY_MODE, MODE_PROFILE);
+        final SignInFragment f = new SignInFragment();
+        f.setArguments(args);
+        return f;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        controller = new SignInFragmentLocator().createController();
+        controller = new SignInFragmentLocator().createController(getArguments().getInt(KEY_MODE));
     }
 
     @Override

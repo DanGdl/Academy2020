@@ -2,10 +2,13 @@ package com.mdgd.academy2020.models;
 
 import android.app.Application;
 
-import com.mdgd.academy2020.models.avatars.AvatarUrlGenerator;
-import com.mdgd.academy2020.models.avatars.GravatarUrlGenerator;
+import com.mdgd.academy2020.models.avatar.AvatarRepo;
+import com.mdgd.academy2020.models.avatar.AvatarRepository;
+import com.mdgd.academy2020.models.avatar.generator.AvatarUrlGenerator;
+import com.mdgd.academy2020.models.avatar.generator.GravatarUrlGenerator;
 import com.mdgd.academy2020.models.cache.Cache;
 import com.mdgd.academy2020.models.cache.CacheImpl;
+import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.files.Files;
 import com.mdgd.academy2020.models.files.FilesImpl;
 import com.mdgd.academy2020.models.network.FirebaseNetwork;
@@ -62,5 +65,10 @@ public class DefaultModelProvider implements ModelProvider {
     @Override
     public Files getFiles() {
         return new FilesImpl(app);
+    }
+
+    @Override
+    public AvatarRepository getAvatarRepository(ProfileCache profileCache) {
+        return new AvatarRepo(profileCache, getAvatarUrlGenerator(), getPrefs(), getFiles(), getNetwork());
     }
 }

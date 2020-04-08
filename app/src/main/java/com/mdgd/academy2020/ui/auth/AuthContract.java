@@ -4,7 +4,7 @@ import com.mdgd.academy2020.arch.Contract;
 
 public class AuthContract {
 
-    public interface Controller extends Contract.Controller<View> {
+    public interface Controller<T extends View> extends Contract.Controller<T> {
     }
 
     public interface View extends Contract.View {

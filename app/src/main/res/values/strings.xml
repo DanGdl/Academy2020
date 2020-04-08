@@ -19,4 +19,6 @@
     <string name="create_another">Refresh</string>
     <string name="edit_profile">Edit profile</string>
     <string name="logout">Logout</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
 </resources>

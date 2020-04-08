@@ -1,7 +1,9 @@
 package com.mdgd.academy2020.models;
 
-import com.mdgd.academy2020.models.avatars.AvatarUrlGenerator;
+import com.mdgd.academy2020.models.avatar.AvatarRepository;
+import com.mdgd.academy2020.models.avatar.generator.AvatarUrlGenerator;
 import com.mdgd.academy2020.models.cache.Cache;
+import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.files.Files;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.prefs.Prefs;
@@ -22,4 +24,6 @@ public interface ModelProvider {
     AvatarUrlGenerator getAvatarUrlGenerator();
 
     Files getFiles();
+
+    AvatarRepository getAvatarRepository(ProfileCache profileCache);
 }

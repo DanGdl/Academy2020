@@ -1,6 +1,6 @@
 package com.mdgd.academy2020.cases.auth;
 
-public class AuthParams {
+public final class AuthParams {
     static final int TYPE_SIGN_IN = 1;
     static final int TYPE_LOG_IN = 2;
 
@@ -8,23 +8,21 @@ public class AuthParams {
     private final String email;
     private final String password;
     private final String imageUrl;
-    private final AuthView view;
     private final int type;
 
-    public static AuthParams newSignInParams(String nickname, String email, String password, String imageUrl, AuthView view) {
-        return new AuthParams(nickname, email, password, imageUrl, view, TYPE_SIGN_IN);
+    public static AuthParams newSignInParams(String nickname, String email, String password, String imageUrl) {
+        return new AuthParams(nickname, email, password, imageUrl, TYPE_SIGN_IN);
     }
 
-    public static AuthParams newLogInParams(String email, String password, AuthView view) {
-        return new AuthParams("", email, password, "", view, TYPE_LOG_IN);
+    public static AuthParams newLogInParams(String email, String password) {
+        return new AuthParams("", email, password, "", TYPE_LOG_IN);
     }
 
-    private AuthParams(String nickname, String email, String password, String imageUrl, AuthView view, int type) {
+    private AuthParams(String nickname, String email, String password, String imageUrl, int type) {
         this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.imageUrl = imageUrl;
-        this.view = view;
         this.type = type;
     }
 
@@ -47,13 +45,5 @@ public class AuthParams {
 
     String getImageUrl() {
         return imageUrl;
-    }
-
-    boolean hasView() {
-        return view != null && view.isStarted();
-    }
-
-    public AuthView getView() {
-        return view;
     }
 }
