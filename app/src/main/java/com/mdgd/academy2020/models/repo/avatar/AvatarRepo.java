@@ -1,12 +1,12 @@
-package com.mdgd.academy2020.models.avatar;
+package com.mdgd.academy2020.models.repo.avatar;
 
-import com.mdgd.academy2020.dto.AvatarUpdate;
-import com.mdgd.academy2020.models.avatar.generator.AvatarUrlGenerator;
 import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.files.Files;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.prefs.Prefs;
+import com.mdgd.academy2020.models.repo.avatar.generator.AvatarUrlGenerator;
+import com.mdgd.academy2020.models.schemas.AvatarUpdate;
 import com.mdgd.academy2020.util.TextUtil;
 
 import java.util.Random;
@@ -19,9 +19,9 @@ import io.reactivex.schedulers.Schedulers;
 public class AvatarRepo implements AvatarRepository {
     private final AvatarUrlGenerator avatarUrlGenerator;
     private final ProfileCache profileCache;
+    private final Network network;
     private final Prefs prefs;
     private final Files files;
-    private final Network network;
 
     public AvatarRepo(ProfileCache profileCache, AvatarUrlGenerator avatarUrlGenerator, Prefs prefs, Files files, Network network) {
         this.avatarUrlGenerator = avatarUrlGenerator;
@@ -94,20 +94,5 @@ public class AvatarRepo implements AvatarRepository {
     @Override
     public String downloadAvatar(String imageUrl) {
         return files.downloadFile(imageUrl);
-    }
-
-    @Override
-    public void putAvatarUrl(String avatarUrl) {
-        prefs.putAvatarUrl(avatarUrl);
-    }
-
-    @Override
-    public void putAvatarPath(String avatarPath) {
-        prefs.putAvatarPath(avatarPath);
-    }
-
-    @Override
-    public void clear() {
-        // todo fill
     }
 }

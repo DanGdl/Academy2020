@@ -1,4 +1,4 @@
-package com.mdgd.academy2020.dto;
+package com.mdgd.academy2020.models.schemas;
 
 public class AvatarUpdate {
     public final String imagePath;

@@ -1,7 +1,7 @@
-package com.mdgd.academy2020.models.avatar;
+package com.mdgd.academy2020.models.repo.avatar;
 
-import com.mdgd.academy2020.dto.AvatarUpdate;
 import com.mdgd.academy2020.models.network.Result;
+import com.mdgd.academy2020.models.schemas.AvatarUpdate;
 
 import io.reactivex.Single;
 
@@ -15,10 +15,4 @@ public interface AvatarRepository {
     Single<Result<AvatarUpdate>> uploadAvatar(String imageUrl);
 
     String downloadAvatar(String imageUrl);
-
-    void putAvatarUrl(String avatarUrl);
-
-    void putAvatarPath(String avatarPath);
-
-    void clear();
 }

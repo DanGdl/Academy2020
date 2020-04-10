@@ -14,13 +14,13 @@ import com.mdgd.academy2020.arch.fragments.MvpFragment;
 public class SplashFragment extends MvpFragment<SplashContract.Controller, SplashContract.Host> implements SplashContract.View {
     private SplashContract.Controller controller;
 
-    public static SplashFragment newInstance() {
-        return new SplashFragment();
-    }
-
     public SplashFragment() {
         setRetainInstance(true);
         controller = new SplashFragmentLocator().createController();
+    }
+
+    public static SplashFragment newInstance() {
+        return new SplashFragment();
     }
 
     @Override

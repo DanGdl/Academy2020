@@ -14,12 +14,12 @@ import com.mdgd.academy2020.arch.fragments.MvpFragment;
 public class SettingsFragment extends MvpFragment<SettingsContract.Controller, SettingsContract.Host> implements SettingsContract.View {
     private SettingsContract.Controller controller;
 
-    public static SettingsFragment newInstance() {
-        return new SettingsFragment();
-    }
-
     public SettingsFragment() {
         controller = new SettingsFragmentLocator().createController();
+    }
+
+    public static SettingsFragment newInstance() {
+        return new SettingsFragment();
     }
 
     @Override

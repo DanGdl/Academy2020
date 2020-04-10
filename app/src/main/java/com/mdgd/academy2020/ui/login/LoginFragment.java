@@ -21,13 +21,13 @@ public class LoginFragment extends MvpFragment<LoginContract.Controller, LoginCo
     private EditText passwordEditText;
     private View loginBtn;
 
-    public static LoginFragment newInstance() {
-        return new LoginFragment();
-    }
-
     public LoginFragment() {
         setRetainInstance(true);
         controller = new LoginFragmentLocator().createController();
+    }
+
+    public static LoginFragment newInstance() {
+        return new LoginFragment();
     }
 
     @Override
@@ -62,10 +62,6 @@ public class LoginFragment extends MvpFragment<LoginContract.Controller, LoginCo
         if (R.id.login_btn == v.getId()) {
             controller.execLogIn();
         }
-    }
-
-    private String getText(EditText editText) {
-        return editText.getText().toString();
     }
 
     @Override

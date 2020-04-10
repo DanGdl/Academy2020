@@ -14,12 +14,12 @@ import com.mdgd.academy2020.arch.fragments.MvpFragment;
 public class GameFragment extends MvpFragment<GameContract.Controller, GameContract.Host> implements GameContract.View {
     private GameContract.Controller controller;
 
-    public static GameFragment newInstance() {
-        return new GameFragment();
-    }
-
     public GameFragment() {
         controller = new GameFragmentLocator().createController();
+    }
+
+    public static GameFragment newInstance() {
+        return new GameFragment();
     }
 
     @Override

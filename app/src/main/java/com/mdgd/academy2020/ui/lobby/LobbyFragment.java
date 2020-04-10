@@ -14,12 +14,12 @@ import com.mdgd.academy2020.arch.fragments.MvpFragment;
 public class LobbyFragment extends MvpFragment<LobbyContract.Controller, LobbyContract.Host> implements LobbyContract.View, View.OnClickListener {
     private LobbyContract.Controller controller;
 
-    public static LobbyFragment newInstance() {
-        return new LobbyFragment();
-    }
-
     public LobbyFragment() {
         controller = new LobbyFragmentLocator().createController();
+    }
+
+    public static LobbyFragment newInstance() {
+        return new LobbyFragment();
     }
 
     @Override

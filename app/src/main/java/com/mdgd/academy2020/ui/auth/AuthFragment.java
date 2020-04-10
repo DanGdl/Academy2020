@@ -14,11 +14,11 @@ import com.mdgd.academy2020.arch.fragments.MvpFragment;
 public class AuthFragment extends MvpFragment<AuthContract.Controller, AuthContract.Host> implements AuthContract.View, View.OnClickListener {
     private AuthContract.Controller controller;
 
-    public static AuthFragment newInstance() {
-        return new AuthFragment();
+    public AuthFragment() {
     }
 
-    public AuthFragment() {
+    public static AuthFragment newInstance() {
+        return new AuthFragment();
     }
 
     @Override

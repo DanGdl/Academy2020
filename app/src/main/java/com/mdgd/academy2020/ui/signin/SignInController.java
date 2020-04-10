@@ -3,13 +3,12 @@ package com.mdgd.academy2020.ui.signin;
 import com.google.common.base.Optional;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.support.auth.AuthViewController;
-import com.mdgd.academy2020.cases.auth.AuthParams;
-import com.mdgd.academy2020.cases.auth.UserAuthUseCase;
-import com.mdgd.academy2020.models.avatar.AvatarRepository;
 import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.prefs.Prefs;
+import com.mdgd.academy2020.models.repo.avatar.AvatarRepository;
+import com.mdgd.academy2020.models.repo.user.UserRepository;
 import com.mdgd.academy2020.models.validators.Validator;
 import com.mdgd.academy2020.util.TextUtil;
 
@@ -17,21 +16,20 @@ import io.reactivex.Notification;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 class SignInController extends AuthViewController<SignInContract.View> implements SignInContract.Controller {
 
-    private final UserAuthUseCase userAuthUseCase;
     private final AvatarRepository avatarRepo;
+    private final UserRepository userRepo;
     private final Network network;
-    private final Prefs prefs;
 
     SignInController(Network network, Prefs prefs, ProfileCache profileCache, Validator<String> emailValidator,
-                     Validator<String> passwordValidator, UserAuthUseCase userAuthUseCase, AvatarRepository avatarRepo) {
-        super(emailValidator, passwordValidator, profileCache);
-        this.userAuthUseCase = userAuthUseCase;
-        this.network = network;
-        this.prefs = prefs;
+                     Validator<String> passwordValidator, UserRepository userRepo, AvatarRepository avatarRepo) {
+        super(emailValidator, passwordValidator, profileCache, prefs);
         this.avatarRepo = avatarRepo;
+        this.userRepo = userRepo;
+        this.network = network;
     }
 
     private String checkPasswordVerification(String password, String passwordVerification) {
@@ -42,9 +40,18 @@ class SignInController extends AuthViewController<SignInContract.View> implement
     public void execSignIn() {
         if (hasView()) {
             onDestroyDisposable.add(
-                    handleAuthExecution(userAuthUseCase.exec(AuthParams.newSignInParams(profileCache.getNickname(),
-                            profileCache.getEmail(), profileCache.getPassword(), profileCache.getImageUrl())))
-            );
+                    handleAuthExecution(network.loginNewUser(profileCache.getEmail(), profileCache.getPassword())
+                            .subscribeOn(Schedulers.io())
+                            .flatMap(result -> {
+                                if (result.isFail()) {
+                                    return Single.just(new Result<>(result.error));
+                                } else {
+                                    prefs.putAuthToken(result.data);
+                                    return userRepo.createNewUser(result.data, profileCache.getEmail(),
+                                            profileCache.getImageUrl(), profileCache.getNickname());
+                                }
+                            })
+                    ));
         }
     }
 
@@ -90,7 +97,7 @@ class SignInController extends AuthViewController<SignInContract.View> implement
         onStopDisposable.add(handleChainWithProgress(Single.fromCallable(() -> {
             network.logOut();
             prefs.clear();
-            avatarRepo.clear();
+            userRepo.clear();
             return Notification.createOnNext(Optional.absent());
         })).subscribe());
     }

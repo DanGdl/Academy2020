@@ -20,7 +20,7 @@ import com.mdgd.academy2020.util.ImageUtil;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
-// todo: add button cancel and logout in profile mode, add spinner for avatar. make email and password not editable, fill data
+// todo: make email and password not editable, fill data + spinner
 public class SignInFragment extends MvpFragment<SignInContract.Controller, SignInContract.Host>
         implements SignInContract.View, View.OnClickListener {
 

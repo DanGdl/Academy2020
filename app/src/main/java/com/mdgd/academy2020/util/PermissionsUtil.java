@@ -10,11 +10,6 @@ import androidx.core.app.ActivityCompat;
 
 public class PermissionsUtil {
 
-    public interface PermissionCommand {
-
-        void exec(final String permission);
-    }
-
     /**
      * return true if has permission, false other way
      */
@@ -55,5 +50,10 @@ public class PermissionsUtil {
             }
         }
         return grantResults.length != 0; // if array is empty - return false
+    }
+
+    public interface PermissionCommand {
+
+        void exec(final String permission);
     }
 }
