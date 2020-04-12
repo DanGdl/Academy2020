@@ -1,9 +1,10 @@
 package com.mdgd.academy2020.models.repo.user;
 
-import com.mdgd.academy2020.models.dao.Dao;
+import com.google.common.base.Optional;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.repo.avatar.AvatarRepository;
+import com.mdgd.academy2020.models.repo.user.dao.UserDao;
 import com.mdgd.academy2020.models.schemas.UserData;
 
 import io.reactivex.Single;
@@ -11,9 +12,9 @@ import io.reactivex.Single;
 public class UserRepo implements UserRepository {
     private final AvatarRepository avatarRepo;
     private final Network network;
-    private final Dao<User> userDao;
+    private final UserDao userDao;
 
-    public UserRepo(AvatarRepository avatarRepo, Network network, Dao<User> userDao) {
+    public UserRepo(AvatarRepository avatarRepo, Network network, UserDao userDao) {
         this.avatarRepo = avatarRepo;
         this.network = network;
         this.userDao = userDao;
@@ -31,7 +32,7 @@ public class UserRepo implements UserRepository {
                                     if (updateResult.isFail()) {
                                         return Single.just(new Result<>(updateResult.error));
                                     } else {
-                                        final User user = new User(email, nickname, uploadResult.data.imageUrl, uploadResult.data.imagePath);
+                                        final User user = new User(email, nickname, uploadResult.data.imageUrl, uploadResult.data.imagePath, uid);
                                         userDao.save(user);
                                         return Single.just(new Result<>(user));
                                     }
@@ -41,17 +42,24 @@ public class UserRepo implements UserRepository {
     }
 
     @Override
-    public Single<Result<User>> loadUser(String uid) {
-        return network.getUser()
-                .map(userResult -> {
-                    if (userResult.isFail()) {
-                        return new Result<>(userResult.error);
+    public Single<Result<User>> getUser(String uid) {
+        return Single.fromCallable(() -> Optional.fromNullable(userDao.getUserByUid(uid)))
+                .flatMap(userOptional -> {
+                    if (userOptional.isPresent()) {
+                        return Single.just(new Result<>(userOptional.get()));
                     } else {
-                        final UserData data = userResult.data;
-                        final String path = avatarRepo.downloadAvatar(data.getImageUrl());
-                        final User user = new User(data.getEmail(), data.getNickname(), data.getImageUrl(), path);
-                        userDao.save(user);
-                        return new Result<>(user);
+                        return network.getUser()
+                                .map(userResult -> {
+                                    if (userResult.isFail()) {
+                                        return new Result<>(userResult.error);
+                                    } else {
+                                        final UserData data = userResult.data;
+                                        final String path = avatarRepo.downloadAvatar(data.getImageUrl());
+                                        final User user = new User(data.getEmail(), data.getNickname(), data.getImageUrl(), path, uid);
+                                        userDao.save(user);
+                                        return new Result<>(user);
+                                    }
+                                });
                     }
                 });
     }

@@ -4,6 +4,10 @@ import java.util.List;
 
 public interface Dao<T extends Entity> {
 
+    void open();
+
+    void close();
+
     void save(T entity);
 
     void save(List<T> entities);

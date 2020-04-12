@@ -36,7 +36,7 @@ class LoginController extends AuthViewController<LoginContract.View> implements 
                                         return Single.just(new Result<>(result.error));
                                     } else {
                                         prefs.putAuthToken(result.data);
-                                        return userRepository.loadUser(result.data);
+                                        return userRepository.getUser(result.data);
                                     }
                                 })
                 )

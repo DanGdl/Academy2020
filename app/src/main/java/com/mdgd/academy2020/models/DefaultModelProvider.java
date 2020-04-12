@@ -18,9 +18,9 @@ import com.mdgd.academy2020.models.repo.avatar.AvatarRepository;
 import com.mdgd.academy2020.models.repo.avatar.generator.AvatarUrlGenerator;
 import com.mdgd.academy2020.models.repo.avatar.generator.GravatarUrlGenerator;
 import com.mdgd.academy2020.models.repo.user.User;
-import com.mdgd.academy2020.models.repo.user.UserDaoSql;
 import com.mdgd.academy2020.models.repo.user.UserRepo;
 import com.mdgd.academy2020.models.repo.user.UserRepository;
+import com.mdgd.academy2020.models.repo.user.dao.UserDaoSql;
 import com.mdgd.academy2020.models.validators.EmailValidator;
 import com.mdgd.academy2020.models.validators.PasswordValidator;
 import com.mdgd.academy2020.models.validators.Validator;
@@ -86,7 +86,7 @@ public class DefaultModelProvider implements ModelProvider {
 
     @Override
     public Dao<User> getUserDao() {
-        return new UserDaoSql();
+        return new UserDaoSql(app);
     }
 
     @Override

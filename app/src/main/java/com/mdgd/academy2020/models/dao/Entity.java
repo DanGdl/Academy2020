@@ -1,7 +1,9 @@
 package com.mdgd.academy2020.models.dao;
 
 public class Entity {
-    private long id;
+    public static final long DEFAULT_ID = -1;
+
+    private long id = DEFAULT_ID;
 
     public long getId() {
         return id;
