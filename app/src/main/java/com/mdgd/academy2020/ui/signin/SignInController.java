@@ -62,6 +62,7 @@ class SignInController extends AuthViewController<SignInContract.View> implement
                                 })
                         ));
             } else {
+                // todo validate data and update
                 // onDestroyDisposable.add(handleChainWithProgress(userRepo.save(profileCache.getUser())));
             }
         }

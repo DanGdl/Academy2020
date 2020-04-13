@@ -8,6 +8,7 @@ import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.prefs.Prefs;
 import com.mdgd.academy2020.models.res.AndroidResources;
 import com.mdgd.academy2020.models.schemas.AvatarUpdate;
+import com.mdgd.academy2020.util.Pair;
 import com.mdgd.academy2020.util.TextUtil;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.Random;
 
 import io.reactivex.Completable;
+import io.reactivex.Notification;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -53,17 +55,17 @@ public class AvatarRepo implements AvatarRepository {
     }
 
     private Single<String> checkAvatarHash() {
-        // todo save avatar type to prefs
-        return Single.just(prefs.getAvatarHash())
+        return Single.fromCallable(() -> new Pair<>(prefs.getAvatarHash(), prefs.getAvatarType()))
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(hash -> {
-                    if (TextUtil.isEmpty(hash)) {
-                        return generateHash();
+                .doOnEvent((pair, error) -> profileCache.putAvatarType(pair.second))
+                .flatMap(pair -> {
+                    if (TextUtil.isEmpty(pair.first)) {
+                        return generateHash().map(hash -> new Pair<>(hash, pair.second));
                     }
-                    return Single.just(hash);
-                }).map(hash -> generate(hash, profileCache.getAvatarType()))
-                .doOnEvent((url, error) -> profileCache.putImageUrl(url));
+                    return Single.just(pair);
+                }).map(pair -> generate(pair.first, profileCache.getAvatarType()))
+                .doOnEvent((url, error) -> profileCache.putImageUrl(url))
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -128,10 +130,13 @@ public class AvatarRepo implements AvatarRepository {
         }
         if (!TextUtil.isEmpty(types.get(type))) {
             profileCache.putAvatarType(types.get(type));
-            return Single.just(profileCache.getAvatarHash())
+            return Single.fromCallable(() -> {
+                prefs.putAvatarType(types.get(type));
+                return Notification.createOnNext(null);
+            })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .map(hash -> generate(hash, profileCache.getAvatarType()))
+                    .map(event -> generate(profileCache.getAvatarHash(), profileCache.getAvatarType()))
                     .doOnEvent((url, error) -> profileCache.putImageUrl(url));
         } else {
             return Single.never();
