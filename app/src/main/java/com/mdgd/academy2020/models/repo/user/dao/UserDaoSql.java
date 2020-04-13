@@ -29,6 +29,8 @@ public class UserDaoSql extends SqlDao<User> implements UserDao {
         cv.put(UserSqlHelper.COLUMN_NICKNAME, entity.getNickname());
         cv.put(UserSqlHelper.COLUMN_AVATAR_URL, entity.getImageUrl());
         cv.put(UserSqlHelper.COLUMN_AVATAR_PATH, entity.getImagePath());
+        cv.put(UserSqlHelper.COLUMN_AVATAR_HASH, entity.getAvatarHash());
+        cv.put(UserSqlHelper.COLUMN_AVATAR_TYPE, entity.getAvatarType());
         return cv;
     }
 

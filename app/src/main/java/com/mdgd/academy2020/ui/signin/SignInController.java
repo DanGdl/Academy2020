@@ -11,6 +11,7 @@ import com.mdgd.academy2020.models.repo.avatar.AvatarRepository;
 import com.mdgd.academy2020.models.repo.user.User;
 import com.mdgd.academy2020.models.repo.user.UserRepository;
 import com.mdgd.academy2020.models.validators.Validator;
+import com.mdgd.academy2020.util.Pair;
 import com.mdgd.academy2020.util.TextUtil;
 
 import io.reactivex.Notification;
@@ -94,9 +95,9 @@ class SignInController extends AuthViewController<SignInContract.View> implement
                 .filter(isEnabled -> hasView())
                 .subscribe(isEnabled -> view.setSignInEnabled(isEnabled)));
 
-        onStopDisposable.add(Single.just(avatarRepo.getTypes())
-                .filter(types -> hasView())
-                .subscribe(types -> view.setAvatarTypes(types)));
+        onStopDisposable.add(Single.just(new Pair<>(avatarRepo.getTypes(), avatarRepo.getType()))
+                .filter(pair -> hasView())
+                .subscribe(pair -> view.setAvatarTypes(pair.first, pair.second)));
 
         if (SignInContract.MODE_SIGN_IN == mode) {
             onStopDisposable.add(loadAvatar(avatarRepo.getUrl()));
@@ -110,7 +111,7 @@ class SignInController extends AuthViewController<SignInContract.View> implement
                                 view.showError(view.getString(R.string.failed_load_user), result.error.getMessage());
                             }
                         } else {
-                            view.setUser(result.data);
+                            view.setUser(result.data, avatarRepo.getType());
                         }
                     }));
         }
@@ -128,7 +129,9 @@ class SignInController extends AuthViewController<SignInContract.View> implement
 
     @Override
     public void logout() {
-        onStopDisposable.add(handleChainWithProgress(logoutUseCase.exec(null)).subscribe());
+        onStopDisposable.add(handleChainWithProgress(logoutUseCase.exec(null))
+                .filter(event -> hasView())
+                .subscribe(event -> view.goToAuth()));
     }
 
     @Override

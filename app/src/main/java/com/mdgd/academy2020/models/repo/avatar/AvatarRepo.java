@@ -53,6 +53,7 @@ public class AvatarRepo implements AvatarRepository {
     }
 
     private Single<String> checkAvatarHash() {
+        // todo save avatar type to prefs
         return Single.just(prefs.getAvatarHash())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -87,7 +88,7 @@ public class AvatarRepo implements AvatarRepository {
         // https://www.gravatar.com/avatar/5148955656?d=identicon&r=g
         // d: identicon, monsterid, robohash
         // r: g, pg, r, x
-        return String.format("https://www.gravatar.com/avatar/%1$s?d=" + type + "&r=x&s=512", hash);
+        return String.format("https://www.gravatar.com/avatar/%1$s?d=%2$s&r=x&s=512", hash, type);
     }
 
     @Override
@@ -126,11 +127,11 @@ public class AvatarRepo implements AvatarRepository {
             return Single.never();
         }
         if (!TextUtil.isEmpty(types.get(type))) {
-            profileCache.putAvatarType(type);
+            profileCache.putAvatarType(types.get(type));
             return Single.just(profileCache.getAvatarHash())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .map(hash -> generate(hash, type))
+                    .map(hash -> generate(hash, profileCache.getAvatarType()))
                     .doOnEvent((url, error) -> profileCache.putImageUrl(url));
         } else {
             return Single.never();
@@ -140,5 +141,15 @@ public class AvatarRepo implements AvatarRepository {
     @Override
     public List<String> getTypes() {
         return new ArrayList<>(types.keySet());
+    }
+
+    @Override
+    public String getType() {
+        for (Map.Entry<String, String> e : types.entrySet()) {
+            if (profileCache.getAvatarType().equals(e.getValue())) {
+                return e.getKey();
+            }
+        }
+        return "";
     }
 }

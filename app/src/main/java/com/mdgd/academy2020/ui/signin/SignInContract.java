@@ -50,14 +50,18 @@ public class SignInContract {
 
         void showError(String title, String message);
 
-        void setUser(User user);
+        void setUser(User user, String avatarType);
 
-        void setAvatarTypes(List<String> types);
+        void setAvatarTypes(List<String> types, String currentType);
+
+        void goToAuth();
     }
 
     public interface Host extends Contract.Host {
         Single<Result<String>> showTakePictureScreen();
 
         void proceedToLobby();
+
+        void proceedToAuth();
     }
 }

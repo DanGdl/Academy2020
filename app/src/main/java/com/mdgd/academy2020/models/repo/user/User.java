@@ -9,7 +9,7 @@ public class User extends Entity {
     private String imagePath = "";
     private String uid = "";
     private String avatarHash = "";
-    private String avatarType;
+    private String avatarType = "robohash";
 
     public User(String email, String nickname, String imageUrl, String imagePath, String uid, String avatarHash, String avatarType) {
         this.email = email;

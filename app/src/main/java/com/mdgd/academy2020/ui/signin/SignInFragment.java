@@ -160,11 +160,11 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     }
 
     @Override
-    public void setUser(User user) {
-        final int position = avatarTypesAdapter.getPosition(user.getAvatarType());
+    public void setUser(User user, String avatarType) {
+        final int position = avatarTypesAdapter.getPosition(avatarType);
         if (position != -1) {
             firstSkipped = false;
-            avatarType.setSelection(position);
+            this.avatarType.setSelection(position);
         }
         ImageUtil.loadImage(avatarView, user);
         nickNameView.setText(user.getNickname());
@@ -172,9 +172,20 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     }
 
     @Override
-    public void setAvatarTypes(List<String> types) {
+    public void setAvatarTypes(List<String> types, String currentType) {
         firstSkipped = false;
         avatarTypesAdapter.addAll(types);
+        final int position = avatarTypesAdapter.getPosition(currentType);
+        if (position != -1) {
+            this.avatarType.setSelection(position);
+        }
+    }
+
+    @Override
+    public void goToAuth() {
+        if (hasCallBack()) {
+            getCallBack().proceedToAuth();
+        }
     }
 
     @Override

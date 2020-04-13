@@ -24,4 +24,6 @@ public interface AvatarRepository {
     Single<String> generateNewUrl(String type);
 
     List<String> getTypes();
+
+    String getType();
 }
