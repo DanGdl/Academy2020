@@ -1,5 +1,7 @@
 package com.mdgd.academy2020.arch;
 
+import com.mdgd.academy2020.models.res.AndroidResources;
+
 /**
  * basic contract for mvp/mvi/mvvm
  */
@@ -23,8 +25,7 @@ public class Contract {
         boolean hasView();
     }
 
-    public interface View {
-        String getString(int strResId, Object... args);
+    public interface View extends AndroidResources {
 
         void showToast(int strResId, Object... args);
 

@@ -1,14 +1,17 @@
 package com.mdgd.academy2020.models.repo.avatar;
 
+import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.files.Files;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.prefs.Prefs;
-import com.mdgd.academy2020.models.repo.avatar.generator.AvatarUrlGenerator;
+import com.mdgd.academy2020.models.res.AndroidResources;
 import com.mdgd.academy2020.models.schemas.AvatarUpdate;
 import com.mdgd.academy2020.util.TextUtil;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import io.reactivex.Completable;
@@ -17,40 +20,35 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class AvatarRepo implements AvatarRepository {
-    private final AvatarUrlGenerator avatarUrlGenerator;
+    private final Map<String, String> types = new HashMap<>();
     private final ProfileCache profileCache;
+    private final AndroidResources res;
     private final Network network;
     private final Prefs prefs;
     private final Files files;
+    private String type = "robohash";
 
-    public AvatarRepo(ProfileCache profileCache, AvatarUrlGenerator avatarUrlGenerator, Prefs prefs, Files files, Network network) {
-        this.avatarUrlGenerator = avatarUrlGenerator;
+    public AvatarRepo(ProfileCache profileCache, Prefs prefs, Files files, Network network, AndroidResources res) {
         this.profileCache = profileCache;
         this.network = network;
         this.prefs = prefs;
         this.files = files;
+        this.res = res;
+
+        onConfigurationChanged();
+    }
+
+    @Override
+    public void onConfigurationChanged() {
+        types.put(res.getString(R.string.avatar_type_abstract), "identicon");
+        types.put(res.getString(R.string.avatar_type_monster), "monsterid");
+        types.put(res.getString(R.string.avatar_type_robot), "robohash");
     }
 
     @Override
     public Single<String> getUrl() {
         return Single.just(profileCache.getImageUrl())
                 .flatMap(url -> TextUtil.isEmpty(url) ? checkAvatarHash() : Single.just(url));
-    }
-
-    @Override
-    public Single<String> generateNewUrl() {
-        return generateHash().map(avatarUrlGenerator::generate)
-                .doOnEvent((url, error) -> profileCache.putImageUrl(url));
-    }
-
-    @Override
-    public Single<Result<String>> captureImage(Single<Result<String>> resultSingle) {
-        return resultSingle
-                .doOnEvent((result, error) -> {
-                    if (!result.isFail()) {
-                        profileCache.putImageUrl(result.data);
-                    }
-                });
     }
 
     private Single<String> checkAvatarHash() {
@@ -62,7 +60,13 @@ public class AvatarRepo implements AvatarRepository {
                         return generateHash();
                     }
                     return Single.just(hash);
-                }).map(avatarUrlGenerator::generate)
+                }).map(hash -> generate(hash, type))
+                .doOnEvent((url, error) -> profileCache.putImageUrl(url));
+    }
+
+    @Override
+    public Single<String> generateNewUrl() {
+        return generateHash().map(hash -> generate(hash, type))
                 .doOnEvent((url, error) -> profileCache.putImageUrl(url));
     }
 
@@ -75,6 +79,22 @@ public class AvatarRepo implements AvatarRepository {
                         .andThen(Single.just(hash)));
     }
 
+    private String generate(String hash, String type) {
+        // https://www.gravatar.com/avatar/5148955656?d=identicon&r=g
+        // d: identicon, monsterid, robohash
+        // r: g, pg, r, x
+        return String.format("https://www.gravatar.com/avatar/%1$s?d=" + type + "&r=x&s=512", hash);
+    }
+
+    @Override
+    public Single<Result<String>> captureImage(Single<Result<String>> resultSingle) {
+        return resultSingle
+                .doOnEvent((result, error) -> {
+                    if (!result.isFail()) {
+                        profileCache.putImageUrl(result.data);
+                    }
+                });
+    }
 
     @Override
     public Single<Result<AvatarUpdate>> uploadAvatar(String imageUrl) {
@@ -97,7 +117,28 @@ public class AvatarRepo implements AvatarRepository {
     }
 
     @Override
-    public void setType(String type) {
-        avatarUrlGenerator.setType(type);
+    public Single<String> updateType(String type) {
+        if (TextUtil.isEmpty(type)) {
+            return null;
+        }
+        this.type = types.get(type);
+        if (TextUtil.isEmpty(this.type)) {
+            this.type = "robohash";
+        }
+        return Single.just(prefs.getAvatarHash())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(hash -> generate(hash, type))
+                .doOnEvent((url, error) -> profileCache.putImageUrl(url));
+    }
+
+    @Override
+    public String getAvatarHash() {
+        return prefs.getAvatarHash();
+    }
+
+    @Override
+    public void putAvatarHash(String avatarHash) {
+        prefs.putImageHash(avatarHash);
     }
 }

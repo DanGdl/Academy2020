@@ -24,11 +24,13 @@ class SignInController extends AuthViewController<SignInContract.View> implement
     private final AvatarRepository avatarRepo;
     private final UserRepository userRepo;
     private final Network network;
+    private final int mode;
 
-    SignInController(Network network, Prefs prefs, ProfileCache profileCache, Validator<String> emailValidator,
+    SignInController(int mode, Network network, Prefs prefs, ProfileCache profileCache, Validator<String> emailValidator,
                      Validator<String> passwordValidator, UserRepository userRepo, AvatarRepository avatarRepo,
                      UseCase<Object, Single<Notification>> logoutUseCase) {
         super(emailValidator, passwordValidator, profileCache, prefs);
+        this.mode = mode;
         this.logoutUseCase = logoutUseCase;
         this.avatarRepo = avatarRepo;
         this.userRepo = userRepo;
@@ -42,19 +44,23 @@ class SignInController extends AuthViewController<SignInContract.View> implement
     @Override
     public void execSignIn() {
         if (hasView()) {
-            onDestroyDisposable.add(
-                    handleAuthExecution(network.loginNewUser(profileCache.getEmail(), profileCache.getPassword())
-                            .subscribeOn(Schedulers.io())
-                            .flatMap(result -> {
-                                if (result.isFail()) {
-                                    return Single.just(new Result<>(result.error));
-                                } else {
-                                    prefs.putAuthToken(result.data);
-                                    return userRepo.createNewUser(result.data, profileCache.getEmail(),
-                                            profileCache.getImageUrl(), profileCache.getNickname());
-                                }
-                            })
-                    ));
+            if (SignInContract.MODE_SIGN_IN == mode) {
+                onDestroyDisposable.add(
+                        handleAuthExecution(network.loginNewUser(profileCache.getEmail(), profileCache.getPassword())
+                                .subscribeOn(Schedulers.io())
+                                .flatMap(result -> {
+                                    if (result.isFail()) {
+                                        return Single.just(new Result<>(result.error));
+                                    } else {
+                                        prefs.putAuthToken(result.data);
+                                        return userRepo.createNewUser(result.data, profileCache.getEmail(),
+                                                profileCache.getImageUrl(), profileCache.getNickname());
+                                    }
+                                })
+                        ));
+            } else {
+                // todo fill
+            }
         }
     }
 
@@ -86,7 +92,22 @@ class SignInController extends AuthViewController<SignInContract.View> implement
                 .filter(isEnabled -> hasView())
                 .subscribe(isEnabled -> view.setSignInEnabled(isEnabled)));
 
-        onStopDisposable.add(loadAvatar(avatarRepo.getUrl()));
+        if (SignInContract.MODE_SIGN_IN == mode) {
+            onStopDisposable.add(loadAvatar(avatarRepo.getUrl()));
+        } else {
+            onStopDisposable.add(Single.fromCallable(prefs::getAuthToken)
+                    .flatMap(userRepo::getUser)
+                    .filter(result -> hasView())
+                    .subscribe(result -> {
+                        if (result.isFail()) {
+                            if (result.error != null) {
+                                view.showError(view.getString(R.string.failed_load_user), result.error.getMessage());
+                            }
+                        } else {
+                            view.setUser(result.data);
+                        }
+                    }));
+        }
     }
 
     @Override
@@ -95,14 +116,13 @@ class SignInController extends AuthViewController<SignInContract.View> implement
     }
 
     @Override
-    public void logout() {
-        onStopDisposable.add(handleChainWithProgress(logoutUseCase.exec(null)).subscribe());
+    public void setAvatarType(String type) {
+        onStopDisposable.add(loadAvatar(avatarRepo.updateType(type)));
     }
 
     @Override
-    public void setAvatarType(String type) {
-        avatarRepo.setType(type);
-        generateImage();
+    public void logout() {
+        onStopDisposable.add(handleChainWithProgress(logoutUseCase.exec(null)).subscribe());
     }
 
     @Override

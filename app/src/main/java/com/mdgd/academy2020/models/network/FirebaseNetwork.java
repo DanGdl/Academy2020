@@ -125,6 +125,7 @@ public class FirebaseNetwork implements Network {
         params.put("email", data.getEmail());
         params.put("nickname", data.getNickname());
         params.put("avatar", data.getImageUrl());
+        params.put("avatarHash", data.getAvatarHash());
         return execRequestRx(firebase.collection(USERS).document(firebaseAuth.getCurrentUser().getUid()).set(params, SetOptions.merge()))
                 .map(updateResult -> {
                     if (updateResult.isFail()) {
@@ -144,7 +145,7 @@ public class FirebaseNetwork implements Network {
                     } else {
                         return new Result<>(new UserData(userResult.data.getString("email"),
                                 userResult.data.getString("nickname"),
-                                userResult.data.getString("avatar")));
+                                userResult.data.getString("avatar"), userResult.data.getString("avatarHash")));
                     }
                 });
     }

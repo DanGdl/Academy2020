@@ -14,17 +14,15 @@ import com.mdgd.academy2020.models.prefs.AppPrefs;
 import com.mdgd.academy2020.models.prefs.Prefs;
 import com.mdgd.academy2020.models.repo.avatar.AvatarRepo;
 import com.mdgd.academy2020.models.repo.avatar.AvatarRepository;
-import com.mdgd.academy2020.models.repo.avatar.generator.AvatarUrlGenerator;
-import com.mdgd.academy2020.models.repo.avatar.generator.GravatarUrlGenerator;
 import com.mdgd.academy2020.models.repo.user.UserRepo;
 import com.mdgd.academy2020.models.repo.user.UserRepository;
 import com.mdgd.academy2020.models.repo.user.dao.UserDao;
 import com.mdgd.academy2020.models.repo.user.dao.UserDaoSql;
+import com.mdgd.academy2020.models.res.AndroidResources;
+import com.mdgd.academy2020.models.res.AndroidResourcesImpl;
 import com.mdgd.academy2020.models.validators.EmailValidator;
 import com.mdgd.academy2020.models.validators.PasswordValidator;
 import com.mdgd.academy2020.models.validators.Validator;
-
-import java.lang.ref.WeakReference;
 
 public class DefaultModelProvider implements ModelProvider {
     private final Application app;
@@ -33,7 +31,7 @@ public class DefaultModelProvider implements ModelProvider {
     private final Prefs prefs;
     private final ProfileCache profileCache;
     private AvatarRepository avatarRepo;
-    private WeakReference<AvatarUrlGenerator> avatarUrlGenerator;
+    private final AndroidResources androidResources;
 
     public DefaultModelProvider(Application app) {
         this.app = app;
@@ -41,12 +39,13 @@ public class DefaultModelProvider implements ModelProvider {
         prefs = new AppPrefs(app);
         network = new FirebaseNetwork(getFiles());
         profileCache = new ProfileCacheImpl();
+        androidResources = new AndroidResourcesImpl(app);
     }
 
     @Override
     public void onConfigurationChanged() {
-        if (avatarUrlGenerator != null && avatarUrlGenerator.get() != null) {
-            avatarUrlGenerator.get().onConfigurationChanged();
+        if (avatarRepo != null) {
+            avatarRepo.onConfigurationChanged();
         }
     }
 
@@ -76,13 +75,6 @@ public class DefaultModelProvider implements ModelProvider {
     }
 
     @Override
-    public AvatarUrlGenerator getAvatarUrlGenerator() {
-        final GravatarUrlGenerator gravatarUrlGenerator = new GravatarUrlGenerator(app);
-        avatarUrlGenerator = new WeakReference<>(gravatarUrlGenerator);
-        return gravatarUrlGenerator;
-    }
-
-    @Override
     public Files getFiles() {
         return new FilesImpl(app);
     }
@@ -90,9 +82,14 @@ public class DefaultModelProvider implements ModelProvider {
     @Override
     public AvatarRepository getAvatarRepository() {
         if (avatarRepo == null) {
-            avatarRepo = new AvatarRepo(getProfileCache(), getAvatarUrlGenerator(), getPrefs(), getFiles(), getNetwork());
+            avatarRepo = new AvatarRepo(getProfileCache(), getPrefs(), getFiles(), getNetwork(), getAndroidResources());
         }
         return avatarRepo;
+    }
+
+    @Override
+    public AndroidResources getAndroidResources() {
+        return androidResources;
     }
 
     @Override

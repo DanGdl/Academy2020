@@ -6,6 +6,9 @@ import com.mdgd.academy2020.models.schemas.AvatarUpdate;
 import io.reactivex.Single;
 
 public interface AvatarRepository {
+
+    void onConfigurationChanged();
+
     Single<String> getUrl();
 
     Single<String> generateNewUrl();
@@ -16,5 +19,9 @@ public interface AvatarRepository {
 
     String downloadAvatar(String imageUrl);
 
-    void setType(String type);
+    Single<String> updateType(String type);
+
+    String getAvatarHash();
+
+    void putAvatarHash(String avatarHash);
 }

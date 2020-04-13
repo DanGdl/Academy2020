@@ -39,7 +39,8 @@ public class UserDaoSql extends SqlDao<User> implements UserDao {
                 get(cursor, UserSqlHelper.COLUMN_NICKNAME, ""),
                 get(cursor, UserSqlHelper.COLUMN_AVATAR_URL, ""),
                 get(cursor, UserSqlHelper.COLUMN_AVATAR_PATH, ""),
-                get(cursor, UserSqlHelper.COLUMN_UID, "")
+                get(cursor, UserSqlHelper.COLUMN_UID, ""),
+                get(cursor, UserSqlHelper.COLUMN_AVATAR_HASH, "")
         );
         user.setId(get(cursor, UserSqlHelper.COLUMN_ID, Entity.DEFAULT_ID));
         return user;
@@ -49,8 +50,7 @@ public class UserDaoSql extends SqlDao<User> implements UserDao {
     public User getUserByUid(String uid) {
         final List<User> users = new ArrayList<>();
         execRead(() -> {
-            final Cursor cursor = db.rawQuery(String.format("select * from %1$s where %2$s = %3$s", sqLiteOpenHelper.getTableName(),
-                    UserSqlHelper.COLUMN_UID, uid), null);
+            final Cursor cursor = db.query(sqLiteOpenHelper.getTableName(), null, UserSqlHelper.COLUMN_UID + "=?", new String[]{uid}, null, null, null);
             parseCursor(cursor, users);
         });
         return users.isEmpty() ? null : users.get(0);

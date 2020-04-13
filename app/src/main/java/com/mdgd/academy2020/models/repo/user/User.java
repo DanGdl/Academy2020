@@ -8,13 +8,15 @@ public class User extends Entity {
     private final String imageUrl;
     private final String imagePath;
     private final String uid;
+    private final String avatarHash;
 
-    public User(String email, String nickname, String imageUrl, String imagePath, String uid) {
+    public User(String email, String nickname, String imageUrl, String imagePath, String uid, String avatarHash) {
         this.email = email;
         this.nickname = nickname;
         this.imageUrl = imageUrl;
         this.imagePath = imagePath;
         this.uid = uid;
+        this.avatarHash = avatarHash;
     }
 
     public String getEmail() {
@@ -35,5 +37,9 @@ public class User extends Entity {
 
     public String getUid() {
         return uid;
+    }
+
+    public String getAvatarHash() {
+        return avatarHash;
     }
 }

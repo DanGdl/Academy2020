@@ -9,7 +9,7 @@ class SignInFragmentLocator {
     SignInContract.Controller createController(int mode) {
         final ModelProvider provider = App.getInstance().getModelProvider();
 
-        return new SignInController(provider.getNetwork(), provider.getPrefs(), provider.getProfileCache(),
+        return new SignInController(mode, provider.getNetwork(), provider.getPrefs(), provider.getProfileCache(),
                 provider.getEmailValidator(), provider.getPasswordValidator(), provider.getUserRepository(),
                 provider.getAvatarRepository(), new LogoutUseCase(provider.getNetwork(), provider.getPrefs(), provider.getUserRepository()));
     }

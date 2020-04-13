@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,18 +19,16 @@ import com.jakewharton.rxbinding3.widget.RxTextView;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.fragments.MvpFragment;
 import com.mdgd.academy2020.models.network.Result;
+import com.mdgd.academy2020.models.repo.user.User;
 import com.mdgd.academy2020.util.ImageUtil;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
-// todo: fill data
 public class SignInFragment extends MvpFragment<SignInContract.Controller, SignInContract.Host>
-        implements SignInContract.View, View.OnClickListener, AdapterView.OnItemClickListener {
+        implements SignInContract.View, View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private static final String KEY_MODE = "mode";
-    private static final int MODE_SIGN_IN = 1;
-    private static final int MODE_PROFILE = 2;
 
     private SignInContract.Controller controller;
     private EditText passwordVerificationView;
@@ -37,13 +36,14 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     private EditText passwordView;
     private ImageView avatarView;
     private Spinner avatarType;
+    private TextView signInBtn;
     private EditText email;
-    private View signInBtn;
     private int mode;
+    private boolean firstSkipped = false;
 
     public static Fragment newSignInInstance() {
         final Bundle args = new Bundle();
-        args.putInt(KEY_MODE, MODE_SIGN_IN);
+        args.putInt(KEY_MODE, SignInContract.MODE_SIGN_IN);
         final SignInFragment f = new SignInFragment();
         f.setArguments(args);
         return f;
@@ -51,7 +51,7 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
 
     public static Fragment newProfileInstance() {
         final Bundle args = new Bundle();
-        args.putInt(KEY_MODE, MODE_PROFILE);
+        args.putInt(KEY_MODE, SignInContract.MODE_PROFILE);
         final SignInFragment f = new SignInFragment();
         f.setArguments(args);
         return f;
@@ -79,6 +79,8 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        firstSkipped = false;
+
         avatarView = view.findViewById(R.id.avatar);
         avatarView.setOnClickListener(this);
 
@@ -86,29 +88,31 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
 
         nickNameView = view.findViewById(R.id.nick_name);
         passwordView = view.findViewById(R.id.password);
-        passwordView.setVisibility(mode == MODE_SIGN_IN ? View.VISIBLE : View.GONE);
+        passwordView.setVisibility(mode == SignInContract.MODE_SIGN_IN ? View.VISIBLE : View.GONE);
 
         passwordVerificationView = view.findViewById(R.id.password_verification);
-        passwordVerificationView.setVisibility(mode == MODE_SIGN_IN ? View.VISIBLE : View.GONE);
+        passwordVerificationView.setVisibility(mode == SignInContract.MODE_SIGN_IN ? View.VISIBLE : View.GONE);
 
         signInBtn = view.findViewById(R.id.sign_in_btn);
         signInBtn.setOnClickListener(this);
+        signInBtn.setText(mode == SignInContract.MODE_SIGN_IN ? R.string.sign_in : R.string.save);
 
         email = view.findViewById(R.id.email);
-        email.setEnabled(mode == MODE_SIGN_IN);
+        email.setEnabled(mode == SignInContract.MODE_SIGN_IN);
 
         final View cancel = view.findViewById(R.id.cancel);
         cancel.setOnClickListener(this);
-        cancel.setVisibility(mode == MODE_PROFILE ? View.VISIBLE : View.GONE);
+        cancel.setVisibility(mode == SignInContract.MODE_PROFILE ? View.VISIBLE : View.GONE);
 
         final View logout = view.findViewById(R.id.logout);
         logout.setOnClickListener(this);
-        logout.setVisibility(mode == MODE_PROFILE ? View.VISIBLE : View.GONE);
+        logout.setVisibility(mode == SignInContract.MODE_PROFILE ? View.VISIBLE : View.GONE);
 
         avatarType = view.findViewById(R.id.profile_avatar_type);
+        // todo: provide selection and data via models
         final String[] stringArray = view.getContext().getResources().getStringArray(R.array.avatar_types);
         avatarType.setAdapter(new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, stringArray));
-        avatarType.setOnItemClickListener(this);
+        avatarType.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -134,10 +138,26 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     }
 
     @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (firstSkipped) {
+            getController().setAvatarType((String) parent.getAdapter().getItem(position));
+        } else {
+            firstSkipped = true;
+        }
+    }
+
+    @Override
     public void showError(String title, String message) {
         if (hasCallBack()) {
             getCallBack().showError(title, message);
         }
+    }
+
+    @Override
+    public void setUser(User user) {
+        ImageUtil.loadImage(avatarView, user);
+        nickNameView.setText(user.getNickname());
+        email.setText(user.getEmail());
     }
 
     @Override
@@ -212,7 +232,5 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        getController().setAvatarType((String) parent.getAdapter().getItem(position));
-    }
+    public void onNothingSelected(AdapterView<?> parent) {/*empty*/}
 }

@@ -127,7 +127,7 @@ public abstract class SqlDao<T extends Entity> extends DefaultCursorParser<T> im
             return items;
         } else {
             execRead(() -> {
-                final Cursor cursor = db.rawQuery(String.format("select * from %1$s where %2$s in %3$s", sqLiteOpenHelper.getTableName(), sqLiteOpenHelper.getIdColumnName(), s), null);
+                final Cursor cursor = db.query(sqLiteOpenHelper.getTableName(), null, sqLiteOpenHelper.getIdColumnName() + "=?", new String[]{s}, null, null, null);
                 parseCursor(cursor, items);
             });
         }

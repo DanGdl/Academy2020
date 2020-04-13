@@ -27,12 +27,12 @@ public class UserRepo implements UserRepository {
                     if (uploadResult.isFail()) {
                         return Single.just(new Result<>(uploadResult.error));
                     } else {
-                        return network.updateUser(new UserData(email, nickname, uploadResult.data.imageUrl))
+                        return network.updateUser(new UserData(email, nickname, uploadResult.data.imageUrl, avatarRepo.getAvatarHash()))
                                 .flatMap(updateResult -> {
                                     if (updateResult.isFail()) {
                                         return Single.just(new Result<>(updateResult.error));
                                     } else {
-                                        final User user = new User(email, nickname, uploadResult.data.imageUrl, uploadResult.data.imagePath, uid);
+                                        final User user = new User(email, nickname, uploadResult.data.imageUrl, uploadResult.data.imagePath, uid, avatarRepo.getAvatarHash());
                                         userDao.save(user);
                                         return Single.just(new Result<>(user));
                                     }
@@ -55,8 +55,9 @@ public class UserRepo implements UserRepository {
                                     } else {
                                         final UserData data = userResult.data;
                                         final String path = avatarRepo.downloadAvatar(data.getImageUrl());
-                                        final User user = new User(data.getEmail(), data.getNickname(), data.getImageUrl(), path, uid);
+                                        final User user = new User(data.getEmail(), data.getNickname(), data.getImageUrl(), path, uid, data.getAvatarHash());
                                         userDao.save(user);
+                                        avatarRepo.putAvatarHash(data.getAvatarHash());
                                         return new Result<>(user);
                                     }
                                 });
