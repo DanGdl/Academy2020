@@ -1,6 +1,7 @@
 package com.mdgd.academy2020.models.repo.user;
 
 import com.google.common.base.Optional;
+import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.repo.avatar.AvatarRepository;
@@ -13,32 +14,13 @@ public class UserRepo implements UserRepository {
     private final AvatarRepository avatarRepo;
     private final Network network;
     private final UserDao userDao;
+    private final ProfileCache profileCache;
 
-    public UserRepo(AvatarRepository avatarRepo, Network network, UserDao userDao) {
+    public UserRepo(AvatarRepository avatarRepo, Network network, UserDao userDao, ProfileCache profileCache) {
         this.avatarRepo = avatarRepo;
         this.network = network;
         this.userDao = userDao;
-    }
-
-    @Override
-    public Single<Result<User>> createNewUser(String uid, String email, String imageUrl, String nickname) {
-        return avatarRepo.uploadAvatar(imageUrl)
-                .flatMap(uploadResult -> {
-                    if (uploadResult.isFail()) {
-                        return Single.just(new Result<>(uploadResult.error));
-                    } else {
-                        return network.updateUser(new UserData(email, nickname, uploadResult.data.imageUrl, avatarRepo.getAvatarHash()))
-                                .flatMap(updateResult -> {
-                                    if (updateResult.isFail()) {
-                                        return Single.just(new Result<>(updateResult.error));
-                                    } else {
-                                        final User user = new User(email, nickname, uploadResult.data.imageUrl, uploadResult.data.imagePath, uid, avatarRepo.getAvatarHash());
-                                        userDao.save(user);
-                                        return Single.just(new Result<>(user));
-                                    }
-                                });
-                    }
-                });
+        this.profileCache = profileCache;
     }
 
     @Override
@@ -46,6 +28,7 @@ public class UserRepo implements UserRepository {
         return Single.fromCallable(() -> Optional.fromNullable(userDao.getUserByUid(uid)))
                 .flatMap(userOptional -> {
                     if (userOptional.isPresent()) {
+                        profileCache.putUser(userOptional.get());
                         return Single.just(new Result<>(userOptional.get()));
                     } else {
                         return network.getUser()
@@ -55,9 +38,9 @@ public class UserRepo implements UserRepository {
                                     } else {
                                         final UserData data = userResult.data;
                                         final String path = avatarRepo.downloadAvatar(data.getImageUrl());
-                                        final User user = new User(data.getEmail(), data.getNickname(), data.getImageUrl(), path, uid, data.getAvatarHash());
+                                        final User user = new User(data.getEmail(), data.getNickname(), data.getImageUrl(), path, uid, data.getAvatarHash(), data.getAvatarType());
                                         userDao.save(user);
-                                        avatarRepo.putAvatarHash(data.getAvatarHash());
+                                        profileCache.putUser(user);
                                         return new Result<>(user);
                                     }
                                 });
@@ -68,5 +51,27 @@ public class UserRepo implements UserRepository {
     @Override
     public void clear() {
         userDao.deleteAll();
+    }
+
+    @Override
+    public Single<Result<User>> save(User user) {
+        return avatarRepo.uploadAvatar(user.getImageUrl())
+                .flatMap(uploadResult -> {
+                    if (uploadResult.isFail()) {
+                        return Single.just(new Result<>(uploadResult.error));
+                    } else {
+                        user.setImageUrl(uploadResult.data.imageUrl);
+                        user.setImagePath(uploadResult.data.imagePath);
+                        return network.updateUser(new UserData(user.getEmail(), user.getNickname(), user.getImageUrl(), user.getAvatarHash(), user.getAvatarType()))
+                                .flatMap(updateResult -> {
+                                    if (updateResult.isFail()) {
+                                        return Single.just(new Result<>(updateResult.error));
+                                    } else {
+                                        userDao.save(user);
+                                        return Single.just(new Result<>(user));
+                                    }
+                                });
+                    }
+                });
     }
 }

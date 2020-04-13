@@ -5,6 +5,8 @@ import com.mdgd.academy2020.arch.support.auth.AuthContract;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.repo.user.User;
 
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -49,6 +51,8 @@ public class SignInContract {
         void showError(String title, String message);
 
         void setUser(User user);
+
+        void setAvatarTypes(List<String> types);
     }
 
     public interface Host extends Contract.Host {

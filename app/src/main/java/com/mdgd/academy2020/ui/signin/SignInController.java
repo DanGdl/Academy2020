@@ -8,6 +8,7 @@ import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.prefs.Prefs;
 import com.mdgd.academy2020.models.repo.avatar.AvatarRepository;
+import com.mdgd.academy2020.models.repo.user.User;
 import com.mdgd.academy2020.models.repo.user.UserRepository;
 import com.mdgd.academy2020.models.validators.Validator;
 import com.mdgd.academy2020.util.TextUtil;
@@ -53,13 +54,14 @@ class SignInController extends AuthViewController<SignInContract.View> implement
                                         return Single.just(new Result<>(result.error));
                                     } else {
                                         prefs.putAuthToken(result.data);
-                                        return userRepo.createNewUser(result.data, profileCache.getEmail(),
-                                                profileCache.getImageUrl(), profileCache.getNickname());
+                                        final User user = profileCache.getUser();
+                                        user.setUid(result.data);
+                                        return userRepo.save(user);
                                     }
                                 })
                         ));
             } else {
-                // todo fill
+                // onDestroyDisposable.add(handleChainWithProgress(userRepo.save(profileCache.getUser())));
             }
         }
     }
@@ -92,6 +94,10 @@ class SignInController extends AuthViewController<SignInContract.View> implement
                 .filter(isEnabled -> hasView())
                 .subscribe(isEnabled -> view.setSignInEnabled(isEnabled)));
 
+        onStopDisposable.add(Single.just(avatarRepo.getTypes())
+                .filter(types -> hasView())
+                .subscribe(types -> view.setAvatarTypes(types)));
+
         if (SignInContract.MODE_SIGN_IN == mode) {
             onStopDisposable.add(loadAvatar(avatarRepo.getUrl()));
         } else {
@@ -117,7 +123,7 @@ class SignInController extends AuthViewController<SignInContract.View> implement
 
     @Override
     public void setAvatarType(String type) {
-        onStopDisposable.add(loadAvatar(avatarRepo.updateType(type)));
+        onStopDisposable.add(loadAvatar(avatarRepo.generateNewUrl(type)));
     }
 
     @Override

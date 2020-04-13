@@ -22,6 +22,8 @@ import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.repo.user.User;
 import com.mdgd.academy2020.util.ImageUtil;
 
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -38,8 +40,9 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     private Spinner avatarType;
     private TextView signInBtn;
     private EditText email;
-    private int mode;
+    private ArrayAdapter<String> avatarTypesAdapter;
     private boolean firstSkipped = false;
+    private int mode;
 
     public static Fragment newSignInInstance() {
         final Bundle args = new Bundle();
@@ -61,7 +64,11 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mode = getArguments().getInt(KEY_MODE);
+        if (getArguments() == null) {
+            mode = SignInContract.MODE_PROFILE;
+        } else {
+            mode = getArguments().getInt(KEY_MODE);
+        }
         controller = new SignInFragmentLocator().createController(mode);
     }
 
@@ -108,10 +115,9 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
         logout.setOnClickListener(this);
         logout.setVisibility(mode == SignInContract.MODE_PROFILE ? View.VISIBLE : View.GONE);
 
+        avatarTypesAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
         avatarType = view.findViewById(R.id.profile_avatar_type);
-        // todo: provide selection and data via models
-        final String[] stringArray = view.getContext().getResources().getStringArray(R.array.avatar_types);
-        avatarType.setAdapter(new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, stringArray));
+        avatarType.setAdapter(avatarTypesAdapter);
         avatarType.setOnItemSelectedListener(this);
     }
 
@@ -155,9 +161,20 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
 
     @Override
     public void setUser(User user) {
+        final int position = avatarTypesAdapter.getPosition(user.getAvatarType());
+        if (position != -1) {
+            firstSkipped = false;
+            avatarType.setSelection(position);
+        }
         ImageUtil.loadImage(avatarView, user);
         nickNameView.setText(user.getNickname());
         email.setText(user.getEmail());
+    }
+
+    @Override
+    public void setAvatarTypes(List<String> types) {
+        firstSkipped = false;
+        avatarTypesAdapter.addAll(types);
     }
 
     @Override

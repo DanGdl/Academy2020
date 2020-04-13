@@ -10,7 +10,9 @@ import com.mdgd.academy2020.models.res.AndroidResources;
 import com.mdgd.academy2020.models.schemas.AvatarUpdate;
 import com.mdgd.academy2020.util.TextUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -26,7 +28,6 @@ public class AvatarRepo implements AvatarRepository {
     private final Network network;
     private final Prefs prefs;
     private final Files files;
-    private String type = "robohash";
 
     public AvatarRepo(ProfileCache profileCache, Prefs prefs, Files files, Network network, AndroidResources res) {
         this.profileCache = profileCache;
@@ -60,20 +61,23 @@ public class AvatarRepo implements AvatarRepository {
                         return generateHash();
                     }
                     return Single.just(hash);
-                }).map(hash -> generate(hash, type))
+                }).map(hash -> generate(hash, profileCache.getAvatarType()))
                 .doOnEvent((url, error) -> profileCache.putImageUrl(url));
     }
 
     @Override
     public Single<String> generateNewUrl() {
-        return generateHash().map(hash -> generate(hash, type))
+        return generateHash().map(hash -> generate(hash, profileCache.getAvatarType()))
                 .doOnEvent((url, error) -> profileCache.putImageUrl(url));
     }
 
     private Single<String> generateHash() {
         return Single.just(new Random().nextInt((int) 10E6))
                 .map(String::valueOf)
-                .flatMap(hash -> Completable.fromAction(() -> prefs.putImageHash(hash))
+                .flatMap(hash -> Completable.fromAction(() -> {
+                    profileCache.putAvatarHash(hash);
+                    prefs.putImageHash(hash);
+                })
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .andThen(Single.just(hash)));
@@ -117,28 +121,24 @@ public class AvatarRepo implements AvatarRepository {
     }
 
     @Override
-    public Single<String> updateType(String type) {
-        if (TextUtil.isEmpty(type)) {
-            return null;
+    public Single<String> generateNewUrl(String type) {
+        if (profileCache.getAvatarType().equals(type) || TextUtil.isEmpty(type)) {
+            return Single.never();
         }
-        this.type = types.get(type);
-        if (TextUtil.isEmpty(this.type)) {
-            this.type = "robohash";
+        if (!TextUtil.isEmpty(types.get(type))) {
+            profileCache.putAvatarType(type);
+            return Single.just(profileCache.getAvatarHash())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .map(hash -> generate(hash, type))
+                    .doOnEvent((url, error) -> profileCache.putImageUrl(url));
+        } else {
+            return Single.never();
         }
-        return Single.just(prefs.getAvatarHash())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(hash -> generate(hash, type))
-                .doOnEvent((url, error) -> profileCache.putImageUrl(url));
     }
 
     @Override
-    public String getAvatarHash() {
-        return prefs.getAvatarHash();
-    }
-
-    @Override
-    public void putAvatarHash(String avatarHash) {
-        prefs.putImageHash(avatarHash);
+    public List<String> getTypes() {
+        return new ArrayList<>(types.keySet());
     }
 }

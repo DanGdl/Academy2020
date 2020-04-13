@@ -17,6 +17,7 @@ public class UserSqlHelper extends AppSqLiteHelper {
     static final String COLUMN_AVATAR_URL = "avatar_url";
     static final String COLUMN_AVATAR_PATH = "avatar_path";
     static final String COLUMN_AVATAR_HASH = "avatar_hash";
+    static final String COLUMN_AVATAR_TYPE = "avatar_type";
 
     public UserSqlHelper(@Nullable Context context, @Nullable SQLiteDatabase.CursorFactory factory) {
         super(context, factory);
@@ -45,6 +46,8 @@ public class UserSqlHelper extends AppSqLiteHelper {
         sb.append(COLUMN_EMAIL);
         sb.append(" text, ");
         sb.append(COLUMN_AVATAR_HASH);
+        sb.append(" text, ");
+        sb.append(COLUMN_AVATAR_TYPE);
         sb.append(" text, ");
         sb.append(COLUMN_AVATAR_URL);
         sb.append(" text, ");

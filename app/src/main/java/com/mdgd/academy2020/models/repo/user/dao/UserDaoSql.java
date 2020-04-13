@@ -40,7 +40,8 @@ public class UserDaoSql extends SqlDao<User> implements UserDao {
                 get(cursor, UserSqlHelper.COLUMN_AVATAR_URL, ""),
                 get(cursor, UserSqlHelper.COLUMN_AVATAR_PATH, ""),
                 get(cursor, UserSqlHelper.COLUMN_UID, ""),
-                get(cursor, UserSqlHelper.COLUMN_AVATAR_HASH, "")
+                get(cursor, UserSqlHelper.COLUMN_AVATAR_HASH, ""),
+                get(cursor, UserSqlHelper.COLUMN_AVATAR_TYPE, "")
         );
         user.setId(get(cursor, UserSqlHelper.COLUMN_ID, Entity.DEFAULT_ID));
         return user;

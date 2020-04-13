@@ -1,25 +1,25 @@
 package com.mdgd.academy2020.models.cache.profile;
 
+import com.mdgd.academy2020.models.repo.user.User;
+
 public class ProfileCacheImpl implements ProfileCache {
-    private String imageUrl = "";
-    private String nickname = "";
     private String password = "";
-    private String email = "";
+    private User user = new User();
 
     public String getImageUrl() {
-        return imageUrl;
+        return user.getImageUrl();
     }
 
     public void putImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+        user.setImageUrl(imageUrl);
     }
 
     public String getNickname() {
-        return nickname;
+        return user.getNickname();
     }
 
     public void putNickname(String nickname) {
-        this.nickname = nickname;
+        user.setNickname(nickname);
     }
 
     public String getPassword() {
@@ -31,10 +31,36 @@ public class ProfileCacheImpl implements ProfileCache {
     }
 
     public String getEmail() {
-        return email;
+        return user.getEmail();
     }
 
     public void putEmail(String email) {
-        this.email = email;
+        user.setEmail(email);
+    }
+
+    public String getAvatarType() {
+        return user.getAvatarType();
+    }
+
+    public void putAvatarType(String avatarType) {
+        user.setAvatarType(avatarType);
+    }
+
+    public String getAvatarHash() {
+        return user.getAvatarHash();
+    }
+
+    public void putAvatarHash(String avatarHash) {
+        user.setAvatarHash(avatarHash);
+    }
+
+    @Override
+    public User getUser() {
+        return user.copy();
+    }
+
+    @Override
+    public void putUser(User user) {
+        this.user = user.copy();
     }
 }

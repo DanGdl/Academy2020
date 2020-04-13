@@ -99,7 +99,7 @@ public class DefaultModelProvider implements ModelProvider {
 
     @Override
     public UserRepository getUserRepository() {
-        return new UserRepo(getAvatarRepository(), getNetwork(), getUserDao());
+        return new UserRepo(getAvatarRepository(), getNetwork(), getUserDao(), getProfileCache());
     }
 
     @Override

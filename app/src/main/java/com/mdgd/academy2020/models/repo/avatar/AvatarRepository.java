@@ -3,6 +3,8 @@ package com.mdgd.academy2020.models.repo.avatar;
 import com.mdgd.academy2020.models.network.Result;
 import com.mdgd.academy2020.models.schemas.AvatarUpdate;
 
+import java.util.List;
+
 import io.reactivex.Single;
 
 public interface AvatarRepository {
@@ -19,9 +21,7 @@ public interface AvatarRepository {
 
     String downloadAvatar(String imageUrl);
 
-    Single<String> updateType(String type);
+    Single<String> generateNewUrl(String type);
 
-    String getAvatarHash();
-
-    void putAvatarHash(String avatarHash);
+    List<String> getTypes();
 }

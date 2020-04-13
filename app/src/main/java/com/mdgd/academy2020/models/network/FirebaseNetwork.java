@@ -12,6 +12,7 @@ import com.google.firebase.storage.StorageReference;
 import com.mdgd.academy2020.models.files.Files;
 import com.mdgd.academy2020.models.schemas.AvatarUpdate;
 import com.mdgd.academy2020.models.schemas.UserData;
+import com.mdgd.academy2020.util.TextUtil;
 
 import java.io.File;
 import java.util.HashMap;
@@ -122,10 +123,21 @@ public class FirebaseNetwork implements Network {
     @Override
     public Single<Result<Boolean>> updateUser(UserData data) {
         final Map<String, Object> params = new HashMap<>();
-        params.put("email", data.getEmail());
-        params.put("nickname", data.getNickname());
-        params.put("avatar", data.getImageUrl());
-        params.put("avatarHash", data.getAvatarHash());
+        if (!TextUtil.isEmpty(data.getEmail())) {
+            params.put("email", data.getEmail());
+        }
+        if (!TextUtil.isEmpty(data.getNickname())) {
+            params.put("nickname", data.getNickname());
+        }
+        if (!TextUtil.isEmpty(data.getImageUrl())) {
+            params.put("avatar", data.getImageUrl());
+        }
+        if (!TextUtil.isEmpty(data.getAvatarHash())) {
+            params.put("avatarHash", data.getAvatarHash());
+        }
+        if (!TextUtil.isEmpty(data.getAvatarType())) {
+            params.put("avatarType", data.getAvatarType());
+        }
         return execRequestRx(firebase.collection(USERS).document(firebaseAuth.getCurrentUser().getUid()).set(params, SetOptions.merge()))
                 .map(updateResult -> {
                     if (updateResult.isFail()) {
@@ -143,9 +155,13 @@ public class FirebaseNetwork implements Network {
                     if (userResult.isFail()) {
                         return new Result<>(userResult.error);
                     } else {
-                        return new Result<>(new UserData(userResult.data.getString("email"),
+                        return new Result<>(new UserData(
+                                userResult.data.getString("email"),
                                 userResult.data.getString("nickname"),
-                                userResult.data.getString("avatar"), userResult.data.getString("avatarHash")));
+                                userResult.data.getString("avatar"),
+                                userResult.data.getString("avatarHash"),
+                                userResult.data.getString("avatarType"))
+                        );
                     }
                 });
     }
