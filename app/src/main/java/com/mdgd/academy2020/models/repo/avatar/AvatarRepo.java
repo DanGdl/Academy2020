@@ -95,4 +95,9 @@ public class AvatarRepo implements AvatarRepository {
     public String downloadAvatar(String imageUrl) {
         return files.downloadFile(imageUrl);
     }
+
+    @Override
+    public void setType(String type) {
+        avatarUrlGenerator.setType(type);
+    }
 }

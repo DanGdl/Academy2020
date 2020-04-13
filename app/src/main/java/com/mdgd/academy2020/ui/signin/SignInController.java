@@ -1,8 +1,8 @@
 package com.mdgd.academy2020.ui.signin;
 
-import com.google.common.base.Optional;
 import com.mdgd.academy2020.R;
 import com.mdgd.academy2020.arch.support.auth.AuthViewController;
+import com.mdgd.academy2020.cases.UseCase;
 import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.network.Network;
 import com.mdgd.academy2020.models.network.Result;
@@ -20,13 +20,16 @@ import io.reactivex.schedulers.Schedulers;
 
 class SignInController extends AuthViewController<SignInContract.View> implements SignInContract.Controller {
 
+    private final UseCase<Object, Single<Notification>> logoutUseCase;
     private final AvatarRepository avatarRepo;
     private final UserRepository userRepo;
     private final Network network;
 
     SignInController(Network network, Prefs prefs, ProfileCache profileCache, Validator<String> emailValidator,
-                     Validator<String> passwordValidator, UserRepository userRepo, AvatarRepository avatarRepo) {
+                     Validator<String> passwordValidator, UserRepository userRepo, AvatarRepository avatarRepo,
+                     UseCase<Object, Single<Notification>> logoutUseCase) {
         super(emailValidator, passwordValidator, profileCache, prefs);
+        this.logoutUseCase = logoutUseCase;
         this.avatarRepo = avatarRepo;
         this.userRepo = userRepo;
         this.network = network;
@@ -93,13 +96,13 @@ class SignInController extends AuthViewController<SignInContract.View> implement
 
     @Override
     public void logout() {
-        // todo create logout use-case
-        onStopDisposable.add(handleChainWithProgress(Single.fromCallable(() -> {
-            network.logOut();
-            prefs.clear();
-            userRepo.clear();
-            return Notification.createOnNext(Optional.absent());
-        })).subscribe());
+        onStopDisposable.add(handleChainWithProgress(logoutUseCase.exec(null)).subscribe());
+    }
+
+    @Override
+    public void setAvatarType(String type) {
+        avatarRepo.setType(type);
+        generateImage();
     }
 
     @Override

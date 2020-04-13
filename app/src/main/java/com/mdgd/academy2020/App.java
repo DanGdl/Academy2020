@@ -1,6 +1,9 @@
 package com.mdgd.academy2020;
 
 import android.app.Application;
+import android.content.res.Configuration;
+
+import androidx.annotation.NonNull;
 
 import com.google.firebase.FirebaseApp;
 import com.mdgd.academy2020.models.DefaultModelProvider;
@@ -24,5 +27,11 @@ public class App extends Application {
 
     public ModelProvider getModelProvider() {
         return modelProvider;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        modelProvider.onConfigurationChanged();
     }
 }

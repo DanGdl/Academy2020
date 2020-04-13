@@ -4,8 +4,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,9 +23,9 @@ import com.mdgd.academy2020.util.ImageUtil;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
-// todo: make email and password not editable, fill data + spinner
+// todo: fill data
 public class SignInFragment extends MvpFragment<SignInContract.Controller, SignInContract.Host>
-        implements SignInContract.View, View.OnClickListener {
+        implements SignInContract.View, View.OnClickListener, AdapterView.OnItemClickListener {
 
     private static final String KEY_MODE = "mode";
     private static final int MODE_SIGN_IN = 1;
@@ -33,6 +36,7 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     private EditText nickNameView;
     private EditText passwordView;
     private ImageView avatarView;
+    private Spinner avatarType;
     private EditText email;
     private View signInBtn;
     private int mode;
@@ -100,6 +104,11 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
         final View logout = view.findViewById(R.id.logout);
         logout.setOnClickListener(this);
         logout.setVisibility(mode == MODE_PROFILE ? View.VISIBLE : View.GONE);
+
+        avatarType = view.findViewById(R.id.profile_avatar_type);
+        final String[] stringArray = view.getContext().getResources().getStringArray(R.array.avatar_types);
+        avatarType.setAdapter(new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, stringArray));
+        avatarType.setOnItemClickListener(this);
     }
 
     @Override
@@ -110,7 +119,6 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
 
     @Override
     public void onClick(View v) {
-        // todo rx
         final int id = v.getId();
         if (R.id.retry_avatar == id) {
             getController().generateImage();
@@ -201,5 +209,10 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
     @Override
     public void setEmailError(String errorMessage) {
         email.setError(errorMessage);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        getController().setAvatarType((String) parent.getAdapter().getItem(position));
     }
 }

@@ -6,7 +6,6 @@ import com.mdgd.academy2020.models.cache.Cache;
 import com.mdgd.academy2020.models.cache.CacheImpl;
 import com.mdgd.academy2020.models.cache.profile.ProfileCache;
 import com.mdgd.academy2020.models.cache.profile.ProfileCacheImpl;
-import com.mdgd.academy2020.models.dao.Dao;
 import com.mdgd.academy2020.models.files.Files;
 import com.mdgd.academy2020.models.files.FilesImpl;
 import com.mdgd.academy2020.models.network.FirebaseNetwork;
@@ -17,13 +16,15 @@ import com.mdgd.academy2020.models.repo.avatar.AvatarRepo;
 import com.mdgd.academy2020.models.repo.avatar.AvatarRepository;
 import com.mdgd.academy2020.models.repo.avatar.generator.AvatarUrlGenerator;
 import com.mdgd.academy2020.models.repo.avatar.generator.GravatarUrlGenerator;
-import com.mdgd.academy2020.models.repo.user.User;
 import com.mdgd.academy2020.models.repo.user.UserRepo;
 import com.mdgd.academy2020.models.repo.user.UserRepository;
+import com.mdgd.academy2020.models.repo.user.dao.UserDao;
 import com.mdgd.academy2020.models.repo.user.dao.UserDaoSql;
 import com.mdgd.academy2020.models.validators.EmailValidator;
 import com.mdgd.academy2020.models.validators.PasswordValidator;
 import com.mdgd.academy2020.models.validators.Validator;
+
+import java.lang.ref.WeakReference;
 
 public class DefaultModelProvider implements ModelProvider {
     private final Application app;
@@ -32,6 +33,7 @@ public class DefaultModelProvider implements ModelProvider {
     private final Prefs prefs;
     private final ProfileCache profileCache;
     private AvatarRepository avatarRepo;
+    private WeakReference<AvatarUrlGenerator> avatarUrlGenerator;
 
     public DefaultModelProvider(Application app) {
         this.app = app;
@@ -39,6 +41,13 @@ public class DefaultModelProvider implements ModelProvider {
         prefs = new AppPrefs(app);
         network = new FirebaseNetwork(getFiles());
         profileCache = new ProfileCacheImpl();
+    }
+
+    @Override
+    public void onConfigurationChanged() {
+        if (avatarUrlGenerator != null && avatarUrlGenerator.get() != null) {
+            avatarUrlGenerator.get().onConfigurationChanged();
+        }
     }
 
     @Override
@@ -68,7 +77,9 @@ public class DefaultModelProvider implements ModelProvider {
 
     @Override
     public AvatarUrlGenerator getAvatarUrlGenerator() {
-        return new GravatarUrlGenerator();
+        final GravatarUrlGenerator gravatarUrlGenerator = new GravatarUrlGenerator(app);
+        avatarUrlGenerator = new WeakReference<>(gravatarUrlGenerator);
+        return gravatarUrlGenerator;
     }
 
     @Override
@@ -85,7 +96,7 @@ public class DefaultModelProvider implements ModelProvider {
     }
 
     @Override
-    public Dao<User> getUserDao() {
+    public UserDao getUserDao() {
         return new UserDaoSql(app);
     }
 

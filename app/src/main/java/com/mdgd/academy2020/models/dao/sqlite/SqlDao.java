@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class SqlDao<T extends Entity> extends DefaultCursorParser<T> implements Dao<T> {
     protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    private final AppSqLiteHelper sqLiteOpenHelper;
+    protected final AppSqLiteHelper sqLiteOpenHelper;
     protected SQLiteDatabase db;
 
     public SqlDao(AppSqLiteHelper sqLiteOpenHelper) {
@@ -135,7 +135,7 @@ public abstract class SqlDao<T extends Entity> extends DefaultCursorParser<T> im
     }
 
 
-    private void parseCursor(Cursor cursor, List<T> items) {
+    protected void parseCursor(Cursor cursor, List<T> items) {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {

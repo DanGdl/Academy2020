@@ -10,6 +10,9 @@ import com.mdgd.academy2020.models.repo.user.User;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserDaoSql extends SqlDao<User> implements UserDao {
 
     public UserDaoSql(Context context) {
@@ -44,6 +47,12 @@ public class UserDaoSql extends SqlDao<User> implements UserDao {
 
     @Override
     public User getUserByUid(String uid) {
-        return null;
+        final List<User> users = new ArrayList<>();
+        execRead(() -> {
+            final Cursor cursor = db.rawQuery(String.format("select * from %1$s where %2$s = %3$s", sqLiteOpenHelper.getTableName(),
+                    UserSqlHelper.COLUMN_UID, uid), null);
+            parseCursor(cursor, users);
+        });
+        return users.isEmpty() ? null : users.get(0);
     }
 }

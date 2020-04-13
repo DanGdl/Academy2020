@@ -15,4 +15,6 @@ public interface AvatarRepository {
     Single<Result<AvatarUpdate>> uploadAvatar(String imageUrl);
 
     String downloadAvatar(String imageUrl);
+
+    void setType(String type);
 }

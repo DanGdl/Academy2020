@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="avatar_types">
+        <item>@string/avatar_type_robot</item>
+        <item>@string/avatar_type_monster</item>
+        <item>@string/avatar_type_abstract</item>
+    </string-array>
+
+</resources>

@@ -20,6 +20,8 @@ public class SignInContract {
         void generateImage();
 
         void logout();
+
+        void setAvatarType(String type);
     }
 
     public interface View extends AuthContract.View {
