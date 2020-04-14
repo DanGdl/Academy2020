@@ -132,7 +132,7 @@ public class AvatarRepo implements AvatarRepository {
             profileCache.putAvatarType(types.get(type));
             return Single.fromCallable(() -> {
                 prefs.putAvatarType(types.get(type));
-                return Notification.createOnNext(null);
+                return Notification.createOnNext(new Object());
             })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -156,5 +156,15 @@ public class AvatarRepo implements AvatarRepository {
             }
         }
         return "";
+    }
+
+    @Override
+    public void removeFiles() {
+        files.deleteAvatar();
+    }
+
+    @Override
+    public Single<Result<Boolean>> delete(String imageUrl) {
+        return network.deleteAvatar(imageUrl);
     }
 }

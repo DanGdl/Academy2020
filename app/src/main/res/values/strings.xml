@@ -27,4 +27,6 @@
     <string name="avatar_type_monster">Monster</string>
     <string name="avatar_type_robot">Robot</string>
     <string name="failed_load_user">Failed to load user</string>
+    <string name="failed_to_update_user">Failed to update user</string>
+    <string name="user_updated">User updated</string>
 </resources>

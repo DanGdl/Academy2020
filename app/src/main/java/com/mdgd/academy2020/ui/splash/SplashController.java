@@ -12,13 +12,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 class SplashController extends MvpController<SplashContract.View> implements SplashContract.Controller {
     private final Prefs prefs;
 
-    public SplashController(Prefs prefs) {
+    SplashController(Prefs prefs) {
         this.prefs = prefs;
     }
 
     @Override
     public void checkUserStatus() {
-        onStopDisposable.add(Single.just(prefs.getAuthToken())
+        onStopDisposable.add(Single.fromCallable(prefs::getAuthToken)
                 .delay(2, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(token -> !TextUtil.isEmpty(token))

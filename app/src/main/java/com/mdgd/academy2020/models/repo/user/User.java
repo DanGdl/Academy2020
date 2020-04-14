@@ -11,7 +11,8 @@ public class User extends Entity {
     private String avatarHash = "";
     private String avatarType = "robohash";
 
-    public User(String email, String nickname, String imageUrl, String imagePath, String uid, String avatarHash, String avatarType) {
+    public User(String email, String nickname, String imageUrl, String imagePath, String uid,
+                String avatarHash, String avatarType) {
         this.email = email;
         this.nickname = nickname;
         this.imageUrl = imageUrl;
@@ -23,6 +24,12 @@ public class User extends Entity {
 
     public User() {
 
+    }
+
+    public User(long id, String email, String nickname, String imageUrl, String imagePath, String uid,
+                String avatarHash, String avatarType) {
+        this(email, nickname, imageUrl, imagePath, uid, avatarHash, avatarType);
+        setId(id);
     }
 
     public String getEmail() {
@@ -82,6 +89,6 @@ public class User extends Entity {
     }
 
     public User copy() {
-        return new User(getEmail(), getNickname(), getImageUrl(), getImagePath(), getUid(), getAvatarHash(), getAvatarType());
+        return new User(getId(), getEmail(), getNickname(), getImageUrl(), getImagePath(), getUid(), getAvatarHash(), getAvatarType());
     }
 }

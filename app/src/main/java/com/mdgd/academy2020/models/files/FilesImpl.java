@@ -81,4 +81,16 @@ public class FilesImpl implements Files {
             return Uri.fromFile(file);
         }
     }
+
+    @Override
+    public void deleteAvatar() {
+        final File[] files = app.getFilesDir().listFiles();
+        // /data/user/0/com.mdgd.academy2020/files/avatar.png
+        for (File f : files) {
+            if (f.getAbsolutePath().contains("/avatar")) {
+                f.delete();
+                break;
+            }
+        }
+    }
 }

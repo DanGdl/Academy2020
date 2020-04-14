@@ -2,6 +2,8 @@ package com.mdgd.academy2020.models.cache.profile;
 
 import com.mdgd.academy2020.models.repo.user.User;
 
+import io.reactivex.Observable;
+
 public interface ProfileCache {
 
     String getImageUrl();
@@ -31,4 +33,12 @@ public interface ProfileCache {
     User getUser();
 
     void putUser(User user);
+
+    Observable<String> getImageUrlObservable();
+
+    boolean hasOriginalUser();
+
+    void putOriginalUser(User data);
+
+    User getOriginalUser();
 }

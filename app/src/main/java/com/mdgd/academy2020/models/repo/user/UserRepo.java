@@ -50,25 +50,43 @@ public class UserRepo implements UserRepository {
 
     @Override
     public void clear() {
+        profileCache.putUser(null);
+        profileCache.putOriginalUser(null);
+        avatarRepo.removeFiles();
         userDao.deleteAll();
     }
 
     @Override
     public Single<Result<User>> save(User user) {
-        return avatarRepo.uploadAvatar(user.getImageUrl())
-                .flatMap(uploadResult -> {
-                    if (uploadResult.isFail()) {
-                        return Single.just(new Result<>(uploadResult.error));
+        // todo delete previous avatar
+        return Single.fromCallable(() -> Optional.fromNullable(userDao.getUserByUid(user.getUid())))
+                .flatMap(optional -> {
+                    if (optional.isPresent()) {
+                        return avatarRepo.delete(optional.get().getImageUrl());
                     } else {
-                        user.setImageUrl(uploadResult.data.imageUrl);
-                        user.setImagePath(uploadResult.data.imagePath);
-                        return network.updateUser(new UserData(user.getEmail(), user.getNickname(), user.getImageUrl(), user.getAvatarHash(), user.getAvatarType()))
-                                .flatMap(updateResult -> {
-                                    if (updateResult.isFail()) {
-                                        return Single.just(new Result<>(updateResult.error));
+                        return Single.just(new Result<>(true));
+                    }
+                })
+                .flatMap(result -> {
+                    if (result.isFail()) {
+                        return Single.just(new Result<>(result.error));
+                    } else {
+                        return avatarRepo.uploadAvatar(user.getImageUrl())
+                                .flatMap(uploadResult -> {
+                                    if (uploadResult.isFail()) {
+                                        return Single.just(new Result<>(uploadResult.error));
                                     } else {
-                                        userDao.save(user);
-                                        return Single.just(new Result<>(user));
+                                        user.setImageUrl(uploadResult.data.imageUrl);
+                                        user.setImagePath(uploadResult.data.imagePath);
+                                        return network.updateUser(new UserData(user.getEmail(), user.getNickname(), user.getImageUrl(), user.getAvatarHash(), user.getAvatarType()))
+                                                .flatMap(updateResult -> {
+                                                    if (updateResult.isFail()) {
+                                                        return Single.just(new Result<>(updateResult.error));
+                                                    } else {
+                                                        userDao.save(user);
+                                                        return Single.just(new Result<>(user));
+                                                    }
+                                                });
                                     }
                                 });
                     }

@@ -24,7 +24,7 @@ public class LogoutUseCase implements UseCase<Object, Single<Notification>> {
     public Single<Notification> exec(Object o) {
         return Single.fromCallable(() -> {
             network.logOut();
-            prefs.clear();
+            prefs.putAuthToken("");
             userRepo.clear();
             return Notification.createOnNext(Optional.absent());
         });

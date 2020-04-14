@@ -17,6 +17,7 @@ import com.mdgd.academy2020.util.TextUtil;
 import io.reactivex.Notification;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -62,47 +63,75 @@ class SignInController extends AuthViewController<SignInContract.View> implement
                                 })
                         ));
             } else {
-                // todo validate data and update
-                // onDestroyDisposable.add(handleChainWithProgress(userRepo.save(profileCache.getUser())));
+                onDestroyDisposable.add(handleChainWithProgress(userRepo.save(profileCache.getUser()))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(result -> {
+                            if (result.isFail()) {
+                                if (hasView()) {
+                                    view.showError(view.getString(R.string.failed_to_update_user), result.error == null ? "" : result.error.getMessage());
+                                }
+                            } else {
+                                if (hasView()) {
+                                    view.showToast(R.string.user_updated);
+                                    view.onBackPressed();
+                                }
+                            }
+                        }));
             }
         }
     }
 
     @Override
     public void setupSubscriptions() {
-        onStopDisposable.add(Observable.combineLatest(
-                getEmailValidationObservable(),
-
-                view.getNickNameObservable()
-                        .skip(1)
-                        .doOnNext(profileCache::putNickname)
-                        .filter(name -> hasView())
-                        .map(name -> !TextUtil.isEmpty(name))
-                        .doOnNext(isValid -> view.setNickNameError(isValid ? null : view.getString(R.string.please_fill_nuckname))),
-
-                Observable.combineLatest(
-                        getPasswordValidationObservable(),
-
-                        view.getPasswordVerificationObservable()
-                                .skip(1).filter(result -> hasView()),
-
-                        (result, passwordVerification) -> {
-                            final String errorMsg = checkPasswordVerification(result.password, passwordVerification);
-                            view.setPasswordVerificationError(errorMsg);
-                            return !result.errorMessage.isPresent() && TextUtil.isEmpty(errorMsg);
-                        }),
-
-                (isEmailValid, isNickNameValid, arePasswordsValid) -> isEmailValid && isNickNameValid && arePasswordsValid)
-                .filter(isEnabled -> hasView())
-                .subscribe(isEnabled -> view.setSignInEnabled(isEnabled)));
-
         onStopDisposable.add(Single.just(new Pair<>(avatarRepo.getTypes(), avatarRepo.getType()))
                 .filter(pair -> hasView())
                 .subscribe(pair -> view.setAvatarTypes(pair.first, pair.second)));
 
         if (SignInContract.MODE_SIGN_IN == mode) {
+            onStopDisposable.add(Observable.combineLatest(
+                    getEmailValidationObservable(),
+
+                    view.getNickNameObservable()
+                            .skip(1)
+                            .doOnNext(profileCache::putNickname)
+                            .filter(name -> hasView())
+                            .map(name -> !TextUtil.isEmpty(name))
+                            .doOnNext(isValid -> view.setNickNameError(isValid ? null : view.getString(R.string.please_fill_nuckname))),
+
+                    Observable.combineLatest(
+                            getPasswordValidationObservable(),
+
+                            view.getPasswordVerificationObservable()
+                                    .skip(1).filter(result -> hasView()),
+
+                            (result, passwordVerification) -> {
+                                final String errorMsg = checkPasswordVerification(result.password, passwordVerification);
+                                view.setPasswordVerificationError(errorMsg);
+                                return !result.errorMessage.isPresent() && TextUtil.isEmpty(errorMsg);
+                            }),
+
+                    (isEmailValid, isNickNameValid, arePasswordsValid) -> isEmailValid && isNickNameValid && arePasswordsValid)
+                    .filter(isEnabled -> hasView())
+                    .subscribe(isEnabled -> view.setSignInEnabled(isEnabled)));
+
             onStopDisposable.add(loadAvatar(avatarRepo.getUrl()));
         } else {
+            onStopDisposable.add(Observable.combineLatest(
+                    view.getNickNameObservable()
+                            .doOnNext(profileCache::putNickname)
+                            .filter(name -> hasView())
+                            .map(name -> new Pair<>(!TextUtil.isEmpty(name), profileCache.hasOriginalUser() && !name.equals(profileCache.getOriginalUser().getNickname())))
+                            .doOnNext(pair -> view.setNickNameError(pair.first ? null : view.getString(R.string.please_fill_nuckname)))
+                            .map(pair -> pair.first && pair.second),
+
+                    profileCache.getImageUrlObservable()
+                            .map(url -> profileCache.hasOriginalUser() && !url.equals(profileCache.getOriginalUser().getImageUrl())),
+
+                    (isNickNameValid, isAvatarChanged) -> isNickNameValid || isAvatarChanged)
+                    .filter(isEnabled -> hasView())
+                    .subscribe(isEnabled -> view.setSignInEnabled(isEnabled)));
+
             onStopDisposable.add(Single.fromCallable(prefs::getAuthToken)
                     .flatMap(userRepo::getUser)
                     .filter(result -> hasView())
@@ -112,6 +141,7 @@ class SignInController extends AuthViewController<SignInContract.View> implement
                                 view.showError(view.getString(R.string.failed_load_user), result.error.getMessage());
                             }
                         } else {
+                            profileCache.putOriginalUser(result.data);
                             view.setUser(result.data, avatarRepo.getType());
                         }
                     }));

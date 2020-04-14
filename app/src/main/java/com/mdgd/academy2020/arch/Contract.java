@@ -36,6 +36,8 @@ public class Contract {
         void hideProgress();
 
         boolean isStarted();
+
+        void onBackPressed();
     }
 
     public interface Host {

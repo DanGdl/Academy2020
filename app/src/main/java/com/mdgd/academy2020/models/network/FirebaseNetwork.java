@@ -165,4 +165,32 @@ public class FirebaseNetwork implements Network {
                     }
                 });
     }
+
+    @Override
+    public Single<Result<Boolean>> deleteAvatar(String imageUrl) {
+        if (imageUrl == null) {
+            return Single.just(new Result<>(true));
+        }
+        final int startIdx = imageUrl.indexOf("avatar");
+        final int endIdx = imageUrl.indexOf("?");
+        if (startIdx == -1 || endIdx == -1) {
+            return Single.just(new Result<>(true));
+        } else {
+            return execRequestRx(FirebaseStorage.getInstance().getReference()
+                    .child("icons/" + imageUrl.substring(startIdx, endIdx)).delete())
+                    .map(result -> {
+                        if (result.isFail()) {
+                            if (result.error != null &&
+                                    "com.google.firebase.storage.StorageException: Object does not exist at location."
+                                            .equals(result.error.getMessage())) {
+                                return new Result<>(true);
+                            } else {
+                                return new Result<>(result.error);
+                            }
+                        } else {
+                            return new Result<>(true);
+                        }
+                    });
+        }
+    }
 }

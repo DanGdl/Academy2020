@@ -138,8 +138,8 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
             getController().execSignIn();
         } else if (R.id.logout == id) {
             getController().logout();
-        } else if (R.id.cancel == id && hasCallBack()) {
-            getCallBack().onBackPressed();
+        } else if (R.id.cancel == id) {
+            onBackPressed();
         }
     }
 
@@ -183,6 +183,7 @@ public class SignInFragment extends MvpFragment<SignInContract.Controller, SignI
 
     @Override
     public void goToAuth() {
+        hideProgress();
         if (hasCallBack()) {
             getCallBack().proceedToAuth();
         }
