@@ -15,4 +15,6 @@ public interface Files {
     Result<String> getCopyFromPath(String imageUrl);
 
     Uri getUriFromFile(File file);
+
+    void deleteAvatar();
 }

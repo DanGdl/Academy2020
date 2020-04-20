@@ -12,8 +12,8 @@ import io.reactivex.Single;
 
 public class SignInContract {
 
-    public static final int MODE_SIGN_IN = 1;
-    public static final int MODE_PROFILE = 2;
+    static final int MODE_SIGN_IN = 1;
+    static final int MODE_PROFILE = 2;
 
     public interface Controller extends AuthContract.Controller<View> {
 

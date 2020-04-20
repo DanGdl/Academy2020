@@ -19,4 +19,6 @@ public interface Network {
     Single<Result<Boolean>> updateUser(UserData data);
 
     Single<Result<UserData>> getUser();
+
+    Single<Result<Boolean>> deleteAvatar(String imageUrl);
 }

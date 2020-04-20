@@ -26,4 +26,8 @@ public interface AvatarRepository {
     List<String> getTypes();
 
     String getType();
+
+    void removeFiles();
+
+    Single<Result<Boolean>> delete(String imageUrl);
 }

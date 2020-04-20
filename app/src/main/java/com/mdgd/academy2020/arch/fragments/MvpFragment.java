@@ -127,4 +127,11 @@ public abstract class MvpFragment<ControllerType extends Contract.Controller, Ho
     public boolean isStarted() {
         return isStarted;
     }
+
+    @Override
+    public void onBackPressed() {
+        if (hasCallBack()) {
+            getCallBack().onBackPressed();
+        }
+    }
 }

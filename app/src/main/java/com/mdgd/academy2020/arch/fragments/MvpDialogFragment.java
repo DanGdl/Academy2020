@@ -162,4 +162,9 @@ public abstract class MvpDialogFragment<Presenter extends Contract.Controller, H
     public boolean isStarted() {
         return isStarted;
     }
+
+    @Override
+    public void onBackPressed() {
+        dismissAllowingStateLoss();
+    }
 }

@@ -2,9 +2,14 @@ package com.mdgd.academy2020.models.cache.profile;
 
 import com.mdgd.academy2020.models.repo.user.User;
 
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+
 public class ProfileCacheImpl implements ProfileCache {
     private String password = "";
     private User user = new User();
+    private User originalUser;
+    private final PublishSubject<String> avatarUrlObservable = PublishSubject.create();
 
     public String getImageUrl() {
         return user.getImageUrl();
@@ -12,6 +17,7 @@ public class ProfileCacheImpl implements ProfileCache {
 
     public void putImageUrl(String imageUrl) {
         user.setImageUrl(imageUrl);
+        avatarUrlObservable.onNext(imageUrl);
     }
 
     public String getNickname() {
@@ -61,6 +67,35 @@ public class ProfileCacheImpl implements ProfileCache {
 
     @Override
     public void putUser(User user) {
-        this.user = user.copy();
+        if (user == null) {
+            this.user = new User();
+        } else {
+            this.user = user.copy();
+            avatarUrlObservable.onNext(user.getImageUrl());
+        }
+    }
+
+    @Override
+    public Observable<String> getImageUrlObservable() {
+        return avatarUrlObservable;
+    }
+
+    @Override
+    public boolean hasOriginalUser() {
+        return originalUser != null;
+    }
+
+    @Override
+    public void putOriginalUser(User data) {
+        if (data == null) {
+            originalUser = null;
+        } else {
+            originalUser = data.copy();
+        }
+    }
+
+    @Override
+    public User getOriginalUser() {
+        return originalUser.copy();
     }
 }

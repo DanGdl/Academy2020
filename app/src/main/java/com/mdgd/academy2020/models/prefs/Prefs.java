@@ -9,13 +9,9 @@ public interface Prefs {
 
     void putImageHash(String hash);
 
-    void putAvatarUrl(String avatarUrl);
-
-    String getAvatarUrl();
-
-    void putAvatarPath(String avatarPath);
-
-    String getAvatarPath();
-
     void clear();
+
+    String getAvatarType();
+
+    void putAvatarType(String avatarType);
 }
